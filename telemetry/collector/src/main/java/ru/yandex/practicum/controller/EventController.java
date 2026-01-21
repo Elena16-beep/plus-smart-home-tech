@@ -14,7 +14,6 @@ import ru.yandex.practicum.service.EventService;
 @RequestMapping("/events")
 @RequiredArgsConstructor
 public class EventController {
-
     private final EventService eventService;
 
     @PostMapping("/sensors")

@@ -18,6 +18,7 @@ public class SensorEventMapper {
         switch (event.getType()) {
             case LIGHT_SENSOR_EVENT -> {
                 LightSensorEvent lightSensorEvent = (LightSensorEvent) event;
+
                 return LightSensorAvro.newBuilder()
                         .setLinkQuality(lightSensorEvent.getLinkQuality())
                         .setLuminosity(lightSensorEvent.getLuminosity())
@@ -25,6 +26,7 @@ public class SensorEventMapper {
             }
             case MOTION_SENSOR_EVENT -> {
                 MotionSensorEvent motionSensorEvent = (MotionSensorEvent) event;
+
                 return MotionSensorAvro.newBuilder()
                         .setLinkQuality(motionSensorEvent.getLinkQuality())
                         .setMotion(motionSensorEvent.isMotion())
@@ -33,12 +35,14 @@ public class SensorEventMapper {
             }
             case SWITCH_SENSOR_EVENT -> {
                 SwitchSensorEvent switchSensorEvent = (SwitchSensorEvent) event;
+
                 return SwitchSensorAvro.newBuilder()
                         .setState(switchSensorEvent.isState())
                         .build();
             }
             case CLIMATE_SENSOR_EVENT -> {
                 ClimateSensorEvent climateSensorEvent = (ClimateSensorEvent) event;
+
                 return ClimateSensorAvro.newBuilder()
                         .setCo2Level(climateSensorEvent.getCo2Level())
                         .setTemperatureC(climateSensorEvent.getTemperatureC())
@@ -47,12 +51,13 @@ public class SensorEventMapper {
             }
             case TEMPERATURE_SENSOR_EVENT -> {
                 TemperatureSensorEvent temperatureSensorEvent = (TemperatureSensorEvent) event;
+
                 return TemperatureSensorAvro.newBuilder()
                         .setTemperatureC(temperatureSensorEvent.getTemperatureC())
                         .setTemperatureF(temperatureSensorEvent.getTemperatureF())
                         .build();
             }
-            default -> throw new IllegalStateException("wrong event payload");
+            default -> throw new IllegalStateException("Неизвестный тип события датчиков " + event.getType());
         }
     }
 }

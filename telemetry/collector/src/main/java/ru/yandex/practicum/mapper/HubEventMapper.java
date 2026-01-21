@@ -2,6 +2,7 @@ package ru.yandex.practicum.mapper;
 
 import org.apache.avro.specific.SpecificRecordBase;
 import ru.yandex.practicum.kafka.telemetry.event.*;
+import ru.yandex.practicum.model.hub.DeviceAction;
 import ru.yandex.practicum.model.hub.DeviceAddedEvent;
 import ru.yandex.practicum.model.hub.DeviceRemovedEvent;
 import ru.yandex.practicum.model.hub.HubEvent;
@@ -11,9 +12,7 @@ import ru.yandex.practicum.model.hub.ScenarioRemovedEvent;
 import java.util.List;
 
 public class HubEventMapper {
-
     public static HubEventAvro toHubEventAvro(HubEvent hubEvent) {
-
         return HubEventAvro.newBuilder()
                 .setHubId(hubEvent.getHubId())
                 .setTimestamp(hubEvent.getTimestamp())
@@ -25,6 +24,7 @@ public class HubEventMapper {
         switch (hubEvent.getType()) {
             case DEVICE_ADDED -> {
                 DeviceAddedEvent deviceAddedEvent = (DeviceAddedEvent) hubEvent;
+
                 return DeviceAddedEventAvro.newBuilder()
                         .setId(deviceAddedEvent.getId())
                         .setType(DeviceTypeAvro.valueOf(deviceAddedEvent.getDeviceType().name()))
@@ -32,6 +32,7 @@ public class HubEventMapper {
             }
             case DEVICE_REMOVED -> {
                 DeviceRemovedEvent deviceRemovedEvent = (DeviceRemovedEvent) hubEvent;
+
                 return DeviceRemovedEventAvro.newBuilder()
                         .setId(deviceRemovedEvent.getHubId())
                         .build();
@@ -44,6 +45,7 @@ public class HubEventMapper {
                 List<ScenarioConditionAvro> scenarioConditionsAvro = scenarioAddedEvent.getConditions().stream()
                         .map(HubEventMapper::toScenarioConditionAvro)
                         .toList();
+
                 return ScenarioAddedEventAvro.newBuilder()
                         .setName(scenarioAddedEvent.getName())
                         .setConditions(scenarioConditionsAvro)
@@ -52,11 +54,12 @@ public class HubEventMapper {
             }
             case SCENARIO_REMOVED -> {
                 ScenarioRemovedEvent scenarioRemovedEvent = (ScenarioRemovedEvent) hubEvent;
+
                 return ScenarioRemovedEventAvro.newBuilder()
                         .setName(scenarioRemovedEvent.getName())
                         .build();
             }
-            default -> throw new IllegalStateException("payload is wrong");
+            default -> throw new IllegalStateException("Неизвестный тип события хаба " + hubEvent.getType());
         }
     }
 

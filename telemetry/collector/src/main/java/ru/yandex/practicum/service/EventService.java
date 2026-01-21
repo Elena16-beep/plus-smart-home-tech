@@ -16,7 +16,7 @@ public class EventService {
     private final KafkaProducerProperties kafkaProducerProperties;
     private final Producer<String, SpecificRecordBase> producer;
 
-    public EventService(Producer<String, SpecificRecordBase> producer, kafkaProducerProperties properties) {
+    public EventService(Producer<String, SpecificRecordBase> producer, KafkaProducerProperties properties) {
         this.producer = producer;
         this.kafkaProducerProperties = properties;
     }
@@ -30,6 +30,7 @@ public class EventService {
                 sensorEvent.getHubId(),
                 sensorEventAvro
         );
+
         producer.send(record);
     }
 
@@ -42,6 +43,7 @@ public class EventService {
                 hubEvent.getHubId(),
                 hubEventAvro
         );
+
         producer.send(record);
     }
 }
