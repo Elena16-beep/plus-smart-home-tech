@@ -24,7 +24,7 @@ import java.time.Instant;
 @Getter @Setter @ToString
 public abstract class HubEvent {
     @NotBlank
-    private String id;
+    private String hubId;
 
     private Instant timestamp = Instant.now();
 
