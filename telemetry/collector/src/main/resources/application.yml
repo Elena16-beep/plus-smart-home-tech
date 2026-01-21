@@ -5,4 +5,4 @@ kafka:
     sensors: telemetry.sensors.v1
   serializers:
     key: "org.apache.kafka.common.serialization.StringSerializer"
-    value: "ru.practicum.serializer.AvroSerializer"
+    value: "ru.yandex.practicum.serializer.AvroSerializer"
