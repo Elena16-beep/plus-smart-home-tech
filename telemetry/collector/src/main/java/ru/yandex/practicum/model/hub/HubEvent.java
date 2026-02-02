@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import java.time.Instant;
 
 @JsonTypeInfo(
@@ -22,6 +23,7 @@ import java.time.Instant;
         @JsonSubTypes.Type(value = ScenarioRemovedEvent.class, name = "SCENARIO_REMOVED")
 })
 @Getter @Setter @ToString
+@SuperBuilder
 public abstract class HubEvent {
     @NotBlank
     private String hubId;
