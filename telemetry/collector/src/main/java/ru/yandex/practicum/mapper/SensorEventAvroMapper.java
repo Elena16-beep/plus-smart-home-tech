@@ -4,7 +4,7 @@ import org.apache.avro.specific.SpecificRecordBase;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.model.sensor.*;
 
-public class SensorEventMapper {
+public class SensorEventAvroMapper {
     public static SensorEventAvro toSensorEventAvro(SensorEvent event) {
         return SensorEventAvro.newBuilder()
                 .setId(event.getId())

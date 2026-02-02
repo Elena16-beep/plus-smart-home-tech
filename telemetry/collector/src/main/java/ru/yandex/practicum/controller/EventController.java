@@ -1,28 +1,58 @@
 package ru.yandex.practicum.controller;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.google.protobuf.Empty;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.service.GrpcService;
+import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
+import ru.yandex.practicum.mapper.HubEventProtoMapper;
+import ru.yandex.practicum.mapper.SensorEventProtoMapper;
 import ru.yandex.practicum.model.hub.HubEvent;
 import ru.yandex.practicum.model.sensor.SensorEvent;
 import ru.yandex.practicum.service.EventService;
 
-@RestController
-@RequestMapping("/events")
-@RequiredArgsConstructor
-public class EventController {
+@GrpcService
+public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
     private final EventService eventService;
+    private final HubEventProtoMapper hubEventProtoMapper;
+    private final SensorEventProtoMapper sensorEventProtoMapper;
 
-    @PostMapping("/sensors")
-    public void createSensorEvent(@Valid @RequestBody SensorEvent sensorEvent) {
-        eventService.createSensorEvent(sensorEvent);
+    public EventController(EventService eventService, HubEventProtoMapper hubEventProtoMapper, SensorEventProtoMapper sensorEventProtoMapper) {
+        this.eventService = eventService;
+        this.hubEventProtoMapper = hubEventProtoMapper;
+        this.sensorEventProtoMapper = sensorEventProtoMapper;
     }
 
-    @PostMapping("/hubs")
-    public void createHubEvent(@Valid @RequestBody HubEvent hubEvent) {
-        eventService.createHubEvent(hubEvent);
+    @Override
+    public void collectHubEvent(HubEventProto hubEventProto, StreamObserver<Empty> responseObserver) {
+        try {
+            HubEvent hubEvent = hubEventProtoMapper.toJava(hubEventProto);
+            eventService.createHubEvent(hubEvent);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.INTERNAL.
+                            withDescription(e.getLocalizedMessage()).
+                            withCause(e)));
+        }
+    }
+
+    @Override
+    public void collectSensorEvent(SensorEventProto sensorEventProto, StreamObserver<Empty> responseObserver) {
+        try {
+            SensorEvent sensorEvent = sensorEventProtoMapper.toJava(sensorEventProto);
+            eventService.createSensorEvent(sensorEvent);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.INTERNAL.
+                            withDescription(e.getLocalizedMessage()).
+                            withCause(e)));
+        }
     }
 }

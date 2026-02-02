@@ -6,8 +6,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.configuration.KafkaProducerProperties;
 import ru.yandex.practicum.kafka.telemetry.event.*;
-import ru.yandex.practicum.mapper.HubEventMapper;
-import ru.yandex.practicum.mapper.SensorEventMapper;
+import ru.yandex.practicum.mapper.HubEventAvroMapper;
+import ru.yandex.practicum.mapper.SensorEventAvroMapper;
 import ru.yandex.practicum.model.hub.HubEvent;
 import ru.yandex.practicum.model.sensor.SensorEvent;
 
@@ -22,7 +22,7 @@ public class EventService {
     }
 
     public void createSensorEvent(SensorEvent sensorEvent) {
-        SensorEventAvro sensorEventAvro = SensorEventMapper.toSensorEventAvro(sensorEvent);
+        SensorEventAvro sensorEventAvro = SensorEventAvroMapper.toSensorEventAvro(sensorEvent);
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(
                 kafkaProducerProperties.getTopics().getSensors(),
                 null,
@@ -35,7 +35,7 @@ public class EventService {
     }
 
     public void createHubEvent(HubEvent hubEvent) {
-        HubEventAvro hubEventAvro = HubEventMapper.toHubEventAvro(hubEvent);
+        HubEventAvro hubEventAvro = HubEventAvroMapper.toHubEventAvro(hubEvent);
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(
                 kafkaProducerProperties.getTopics().getHubs(),
                 null,
