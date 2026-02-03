@@ -6,12 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.dal.model.Action;
-import ru.yandex.practicum.dal.model.Condition;
-import ru.yandex.practicum.dal.model.Scenario;
-import ru.yandex.practicum.dal.model.DeviceActionType;
-import ru.yandex.practicum.dal.model.ConditionOperation;
-import ru.yandex.practicum.dal.model.ScenarioConditionType;
+import ru.yandex.practicum.dal.model.*;
 import ru.yandex.practicum.dal.repository.ScenarioRepository;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
@@ -21,7 +16,7 @@ import ru.yandex.practicum.kafka.telemetry.event.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import static ru.yandex.practicum.dal.model.ScenarioConditionType.*;
+import static ru.yandex.practicum.dal.model.ConditionType.*;
 
 @Slf4j
 @Service
@@ -60,7 +55,7 @@ public class ScenarioService {
         }
 
         final SensorStateAvro state = snapshot.getSensorsState().get(sensorId);
-        ScenarioConditionType type = condition.getType();
+        ConditionType type = condition.getType();
         ConditionOperation operation = condition.getOperation();
 
         return switch (state.getData()) {
@@ -124,7 +119,7 @@ public class ScenarioService {
         }
     }
 
-    private ActionTypeProto mapActionType(DeviceActionType avro) {
+    private ActionTypeProto mapActionType(ActionType avro) {
         for (ActionTypeProto value : ActionTypeProto.values()) {
             if (value.name().equalsIgnoreCase(avro.name())) {
                 return value;
