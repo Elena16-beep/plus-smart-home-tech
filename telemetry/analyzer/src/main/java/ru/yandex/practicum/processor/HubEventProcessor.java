@@ -1,112 +1,54 @@
 package ru.yandex.practicum.processor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.kafka.telemetry.event.*;
-import ru.yandex.practicum.configuration.AnalyzerKafkaConfig;
-import ru.yandex.practicum.configuration.ConsumerConfig;
-import ru.yandex.practicum.service.ScenarioHandler;
+import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
+import ru.yandex.practicum.service.HubEventService;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class HubEventProcessor implements Runnable {
 
-    private final Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<>();
-    private final KafkaConsumer<String, HubEventAvro> consumer;
-    private final List<String> topics;
-    private final Duration pollTimeout;
-    private final ScenarioHandler scenarioHandler;
+    @Value("${app.topics.hubs}")
+    private String hubsTopic;
 
-    public HubEventProcessor(AnalyzerKafkaConfig config, ScenarioHandler scenarioHandler) {
-        final ConsumerConfig consumerConfig = config.getConsumers().get(this.getClass().getSimpleName());
-        this.consumer = new KafkaConsumer<>(consumerConfig.getProperties());
-        this.topics = consumerConfig.getTopics();
-        this.pollTimeout = consumerConfig.getPollTimeout();
-        this.scenarioHandler = scenarioHandler;
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("Завершение работы консьюмера");
-            consumer.wakeup();
-        }));
-    }
+    private final KafkaConsumer<String, HubEventAvro> hubEventConsumer;
+    private final HubEventService hubEventService;
 
     @Override
     public void run() {
         try {
-            log.trace("Подписка на топики " + topics);
-            consumer.subscribe(topics);
+            log.info("Подписка на топик " + hubsTopic);
+            hubEventConsumer.subscribe(List.of(hubsTopic));
 
             while (true) {
-                ConsumerRecords<String, HubEventAvro> records = consumer.poll(pollTimeout);
-                int count = 0;
+                var records = hubEventConsumer.poll(Duration.ofSeconds(1));
 
-                for (ConsumerRecord<String, HubEventAvro> record : records) {
-                    log.trace("Обработка сообщения от хаба {} из партиции {} с оффсетом {}.",
-                            record.key(), record.partition(), record.offset());
-                    handleRecord(record.value());
-                    manageOffsets(record, count, consumer);
-                    count++;
+                if (!records.isEmpty()) {
+                    records.forEach(record ->
+                            hubEventService.processEvent(record.value())
+                    );
                 }
-
-                consumer.commitAsync();
             }
-        } catch (WakeupException ignores) {
+
+        } catch (WakeupException e) {
             log.info("Завершение работы");
         } catch (Exception e) {
             log.error("Ошибка во время обработки сценариев от хабов", e);
         } finally {
             try {
-                consumer.commitSync(offsets);
-            } finally {
+                hubEventConsumer.close();
                 log.info("Закрытие консьюмера");
-                consumer.close();
+            } catch (Exception e) {
+                log.error("Ошибка при закрытии ", e);
             }
-        }
-    }
-
-    private void manageOffsets(ConsumerRecord<String, HubEventAvro> record, int count,
-                               KafkaConsumer<String, HubEventAvro> consumer) {
-        offsets.put(
-                new TopicPartition(record.topic(), record.partition()),
-                new OffsetAndMetadata(record.offset() + 1)
-        );
-
-        if (count % 100 == 0) {
-            consumer.commitAsync(offsets, (committedOffsets, exception) -> {
-                if (exception != null) {
-                    log.warn("Ошибка во время фиксации оффсетов " + committedOffsets, exception);
-                }
-            });
-        }
-    }
-
-    private void handleRecord(HubEventAvro hubEventAvro) {
-        try {
-            String hubId = hubEventAvro.getHubId();
-
-            switch (hubEventAvro.getPayload()) {
-                case DeviceAddedEventAvro deviceAddedEventAvro ->
-                        scenarioHandler.handleDeviceAdded(hubId, deviceAddedEventAvro);
-                case DeviceRemovedEventAvro deviceRemovedEventAvro ->
-                        scenarioHandler.handleDeviceRemoved(hubId, deviceRemovedEventAvro);
-                case ScenarioAddedEventAvro scenarioAddedEventAvro ->
-                        scenarioHandler.handleScenarioAdded(hubId, scenarioAddedEventAvro);
-                case ScenarioRemovedEventAvro scenarioRemovedEventAvro ->
-                        scenarioHandler.handleScenarioRemoved(hubId, scenarioRemovedEventAvro);
-                default -> log.warn("Неизвестный тип события " + hubEventAvro);
-            }
-        } catch (Exception e) {
-            log.error("Ошибка обработки события для хаба " + hubEventAvro.getHubId(), e);
         }
     }
 }
