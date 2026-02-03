@@ -13,8 +13,10 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>aggregator</module>
         <module>serialization</module>
         <module>collector</module>
+        <module>aggregator</module>
     </modules>
 
 </project>
