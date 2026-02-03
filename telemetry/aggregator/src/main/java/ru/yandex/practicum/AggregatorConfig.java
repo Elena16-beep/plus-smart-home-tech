@@ -19,7 +19,6 @@ import static org.apache.kafka.clients.producer.ProducerConfig.*;
 
 @Configuration
 public class AggregatorConfig {
-
     @Value("${kafka.bootstrap-server}")
     private String bootStrapServer;
     @Value("${kafka.group-id}")
@@ -31,6 +30,7 @@ public class AggregatorConfig {
         properties.put(BOOTSTRAP_SERVERS_CONFIG, bootStrapServer);
         properties.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(VALUE_SERIALIZER_CLASS_CONFIG, AvroSerializer.class.getName());
+
         return new KafkaProducer<>(properties);
     }
 
@@ -41,6 +41,7 @@ public class AggregatorConfig {
         properties.put(GROUP_ID_CONFIG, groupId);
         properties.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(VALUE_DESERIALIZER_CLASS_CONFIG, SensorEventDeserializer.class.getName());
+
         return new KafkaConsumer<>(properties);
     }
 }
