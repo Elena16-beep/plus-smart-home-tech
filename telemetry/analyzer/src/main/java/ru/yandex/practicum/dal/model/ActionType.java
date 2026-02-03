@@ -1,6 +1,6 @@
 package ru.yandex.practicum.dal.model;
 
-public enum DeviceActionType {
+public enum ActionType {
     ACTIVATE,
     DEACTIVATE,
     INVERSE,

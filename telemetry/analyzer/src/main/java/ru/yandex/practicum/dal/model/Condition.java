@@ -17,7 +17,7 @@ public class Condition {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private ScenarioConditionType type;
+    private ConditionType type;
 
     @Enumerated(EnumType.STRING)
     private ConditionOperation operation;

@@ -4,13 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.dal.model.Action;
-import ru.yandex.practicum.dal.model.Condition;
-import ru.yandex.practicum.dal.model.Scenario;
-import ru.yandex.practicum.dal.model.Sensor;
-import ru.yandex.practicum.dal.model.DeviceActionType;
-import ru.yandex.practicum.dal.model.ConditionOperation;
-import ru.yandex.practicum.dal.model.ScenarioConditionType;
+import ru.yandex.practicum.dal.model.*;
 import ru.yandex.practicum.dal.repository.ActionRepository;
 import ru.yandex.practicum.dal.repository.ConditionRepository;
 import ru.yandex.practicum.dal.repository.ScenarioRepository;
@@ -78,7 +72,7 @@ public class HubEventService {
 
         event.getConditions().forEach(c -> {
             Condition cond = Condition.builder()
-                    .type(ScenarioConditionType.valueOf(c.getType().name()))
+                    .type(ConditionType.valueOf(c.getType().name()))
                     .operation(ConditionOperation.valueOf(c.getOperation().name()))
                     .value(convertValue(c.getValue()))
                     .build();
@@ -88,7 +82,7 @@ public class HubEventService {
 
         event.getActions().forEach(a -> {
             Action action = Action.builder()
-                    .type(DeviceActionType.valueOf(a.getType().name()))
+                    .type(ActionType.valueOf(a.getType().name()))
                     .build();
             if (a.getType() == ActionTypeAvro.SET_VALUE) {
                 action.setValue(convertValue(a.getValue()));

@@ -17,7 +17,7 @@ public class Action {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private DeviceActionType type;
+    private ActionType type;
 
     private Integer value;
 }
