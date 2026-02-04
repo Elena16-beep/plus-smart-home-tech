@@ -1,5 +1,6 @@
 package ru.yandex.practicum;
 
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
@@ -12,6 +13,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
@@ -24,11 +26,12 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AggregationStarter {
+public class AggregationStarter implements CommandLineRunner {
     private final Consumer<String, SpecificRecordBase> consumer;
     private final Producer<String, SpecificRecordBase> producer;
     private final SnapshotServiceImpl snapshotService;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
+    private volatile boolean running = true;
 
     @Value("${topic.telemetry-sensors}")
     private String sensorsTopic;
@@ -36,13 +39,14 @@ public class AggregationStarter {
     @Value("${aggregator.topic.telemetry-snapshots}")
     private String snapshotsTopic;
 
-    public void start() {
-        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
+    public void run(String... args) {
+//        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
 
         try {
             consumer.subscribe(List.of(sensorsTopic));
+            Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
 
-            while (!Thread.currentThread().isInterrupted()) {
+            while (running) {
                 ConsumerRecords<String, SpecificRecordBase> records = consumer.poll(Duration.ofMillis(1000));
                 int count = 0;
 
@@ -69,6 +73,12 @@ public class AggregationStarter {
                 producer.close();
             }
         }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        consumer.wakeup();
+        running = false;
     }
 
     private void handleRecord(ConsumerRecord<String, SpecificRecordBase> record) {
