@@ -2,40 +2,65 @@ package ru.yandex.practicum.processor;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.service.AnalyzerService;
+import ru.yandex.practicum.service.HubEventHandler;
+import ru.yandex.practicum.service.HubEventHandlers;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class HubEventProcessor implements Runnable {
-    private final AnalyzerService service;
-    private final ConsumerFactory<String, HubEventAvro> hubEventConsumerFactory;
+    private final KafkaConsumer<String, HubEventAvro> hubConsumer;
+    private final HubEventHandlers handlers;
+    @Value("${kafka.topics.hubs}")
+    private String hubsTopic;
 
-    @Value("${spring.kafka.topics.hub-topic-name}")
-    private String hubEventTopic;
 
     @Override
     public void run() {
-        try (Consumer<String, HubEventAvro> hubEventConsumer = hubEventConsumerFactory.createConsumer()) {
-            hubEventConsumer.subscribe(List.of(hubEventTopic));
+        try {
+            hubConsumer.subscribe(List.of(hubsTopic));
+            log.info("Подписались на топик хабов");
+            Runtime.getRuntime().addShutdownHook(new Thread(hubConsumer::wakeup));
+            Map<String, HubEventHandler> handlerMap = handlers.getHandlers();
 
             while (true) {
-                var hubEvents = hubEventConsumer.poll(Duration.ofMillis(100));
-                log.debug("Получено {} записей", hubEvents.count());
-                service.saveHubEvent(hubEvents);
-                hubEventConsumer.commitSync();
+
+                ConsumerRecords<String, HubEventAvro> records = hubConsumer.poll(Duration.ofMillis(1000));
+
+                for (ConsumerRecord<String, HubEventAvro> record : records) {
+                    HubEventAvro event = record.value();
+                    String payloadName = event.getPayload().getClass().getSimpleName();
+                    log.info("Получили сообщение хаба типа: {}", payloadName);
+
+                    if (handlerMap.containsKey(payloadName)) {
+                        handlerMap.get(payloadName).handle(event);
+                    } else {
+                        throw new IllegalArgumentException("Не могу найти обработчик для события " + event);
+                    }
+                }
+
+                hubConsumer.commitSync();
+                log.info("Хартбит хаб");
             }
         } catch (WakeupException ignored) {
         } catch (Exception e) {
-            log.error("Ошибка при обработке событий Kafka", e);
+            log.error("Ошибка чтения данных из топика {}", hubsTopic);
+        } finally {
+            try {
+                hubConsumer.commitSync();
+            } finally {
+                hubConsumer.close();
+            }
         }
     }
 }
