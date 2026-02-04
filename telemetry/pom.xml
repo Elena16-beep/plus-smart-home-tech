@@ -17,6 +17,7 @@
         <module>analyzer</module>
         <module>serialization</module>
         <module>collector</module>
+        <module>hub-router</module>
     </modules>
 
 </project>
