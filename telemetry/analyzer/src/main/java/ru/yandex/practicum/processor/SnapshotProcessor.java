@@ -1,13 +1,16 @@
 package ru.yandex.practicum.processor;
 
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
-import ru.yandex.practicum.service.ScenarioService;
+import ru.yandex.practicum.service.SnapshotHandler;
 import java.time.Duration;
 import java.util.List;
 
@@ -15,43 +18,53 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class SnapshotProcessor {
+    private final Consumer<String, SensorsSnapshotAvro> consumer;
+    private final SnapshotHandler snapshotHandler;
+    private volatile boolean isRunning = true;
 
-    @Value("${app.topics.snapshots}")
-    private String snapshotsTopic;
-
-    private final ScenarioService scenarioService;
-    private final KafkaConsumer<String, SensorsSnapshotAvro> snapshotConsumer;
+    @Value("${analyzer.topic.snapshots-topic}")
+    private String topic;
 
     public void start() {
+        consumer.subscribe(List.of(topic));
+        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
+
         try {
-            log.info("Подписка на топик " + snapshotsTopic);
-            snapshotConsumer.subscribe(List.of(snapshotsTopic));
+            while (isRunning) {
+                ConsumerRecords<String, SensorsSnapshotAvro> records = consumer.poll(Duration.ofMillis(1000));
 
-            while (true) {
-                var records = snapshotConsumer.poll(Duration.ofSeconds(1));
-
-                for (var rec : records) {
-                    SensorsSnapshotAvro snapshot = rec.value();
-
-                    if (snapshot != null) {
-                        scenarioService.processSnapshot(snapshot);
-                    }
+                for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
+                    handleRecord(record);
                 }
 
-                snapshotConsumer.commitAsync();
+                if (!records.isEmpty()) {
+                    consumer.commitSync();
+                }
             }
-
-        } catch (WakeupException e) {
-            log.info("Завершение работы");
-        } catch (Exception e) {
-            log.error("Ошибка во время обработки событий от хабов", e);
+            log.info("PoolLoop остановлен вручную");
+        } catch (WakeupException ignored) {
+            log.warn("Возник WakeupException");
+        } catch (Exception exp) {
+            log.error("Ошибка чтения данных из топика {}", topic, exp);
         } finally {
             try {
-                snapshotConsumer.commitSync();
-            } catch (Exception ignore) {
+                log.info("Закрываем Consumer");
+                consumer.close();
+            } catch (Exception exp) {
+                log.warn("Ошибка при закрытии CONSUMER-a", exp);
             }
-            snapshotConsumer.close();
-            log.info("Закрытие консьюмера");
         }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        consumer.wakeup();
+        isRunning = false;
+    }
+
+    private void handleRecord(ConsumerRecord<String, SensorsSnapshotAvro> record) {
+        SensorsSnapshotAvro snapshot = record.value();
+        log.info("Получили SNAPSHOT состояния умного дома: {}", snapshot);
+        snapshotHandler.handle(snapshot);
     }
 }

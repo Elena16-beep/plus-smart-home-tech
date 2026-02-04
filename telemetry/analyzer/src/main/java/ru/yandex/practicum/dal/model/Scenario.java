@@ -1,54 +1,45 @@
 package ru.yandex.practicum.dal.model;
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import java.util.Set;
 
 @Entity
 @Table(name = "scenarios")
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Scenario {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id")
+    Long id;
 
-    private String hubId;
+    @Column(name = "hub_id")
+    String hubId;
 
-    private String name;
+    @Column(name = "name")
+    String name;
 
-    @OneToMany
-    @MapKeyColumn(
-            table = "scenario_conditions",
-            name = "sensor_id")
-    @JoinTable(
-            name = "scenario_conditions",
-            joinColumns = @JoinColumn(name = "scenario_id"),
-            inverseJoinColumns = @JoinColumn(name = "condition_id"))
-    @Builder.Default
-    private Map<String, Condition> conditions = new HashMap<>();
+    @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    Set<ScenarioCondition> conditions;
 
-    @OneToMany
-    @MapKeyColumn(
-            table = "scenario_actions",
-            name = "sensor_id")
-    @JoinTable(
-            name = "scenario_actions",
-            joinColumns = @JoinColumn(name = "scenario_id"),
-            inverseJoinColumns = @JoinColumn(name = "action_id"))
-    @Builder.Default
-    private Map<String, Action> actions = new HashMap<>();
+    @OneToMany(mappedBy = "scenario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    Set<ScenarioAction> actions;
 
-    public void addCondition(String sensorId, Condition condition) {
-        conditions.put(sensorId, condition);
-    }
-
-    public void addAction(String sensorId, Action action) {
-        actions.put(sensorId, action);
-    }
 }
