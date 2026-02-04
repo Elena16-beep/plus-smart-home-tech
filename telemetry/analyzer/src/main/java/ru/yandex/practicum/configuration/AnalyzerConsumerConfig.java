@@ -62,5 +62,4 @@ public class AnalyzerConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
-
 }
