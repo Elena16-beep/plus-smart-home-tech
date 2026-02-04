@@ -2,43 +2,41 @@ package ru.yandex.practicum.dal.model;
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.FieldDefaults;
+import lombok.ToString;
 
 @Entity
-@Table(name = "scenario_conditions")
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
+@ToString
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@Table(name = "scenario_conditions")
 public class ScenarioCondition {
     @EmbeddedId
-    ScenarioConditionId id;
+    private ScenarioConditionId id;
 
+    @ManyToOne
     @MapsId("scenarioId")
     @JoinColumn(name = "scenario_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    Scenario scenario;
+    private Scenario scenario;
 
+    @ManyToOne
     @MapsId("sensorId")
     @JoinColumn(name = "sensor_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    Sensor sensor;
+    private Sensor sensor;
 
+    @ManyToOne
     @MapsId("conditionId")
     @JoinColumn(name = "condition_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    Condition condition;
+    private Condition condition;
 }

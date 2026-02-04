@@ -1,28 +1,23 @@
 package ru.yandex.practicum.dal.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import lombok.Setter;
+import lombok.ToString;
 import java.io.Serializable;
 
 @Embeddable
 @Getter
-@AllArgsConstructor
+@Setter
+@Builder
 @NoArgsConstructor
-@EqualsAndHashCode
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
+@ToString
 public class ScenarioConditionId implements Serializable {
-    @Column(name = "scenario_id")
-    Long scenarioId;
-
-    @Column(name = "sensor_id")
-    String sensorId;
-
-    @Column(name = "condition_id")
-    Long conditionId;
+    private Long scenarioId;
+    private String sensorId;
+    private Long conditionId;
 }

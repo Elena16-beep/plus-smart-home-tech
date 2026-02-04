@@ -1,70 +1,56 @@
 package ru.yandex.practicum.processor;
 
-import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.configuration.GrpcConfig;
+import ru.yandex.practicum.service.ScenariosChecker;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
-import ru.yandex.practicum.service.SnapshotHandler;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SnapshotProcessor {
-    private final Consumer<String, SensorsSnapshotAvro> consumer;
-    private final SnapshotHandler snapshotHandler;
-    private volatile boolean isRunning = true;
+    private final ConsumerFactory<String, SensorsSnapshotAvro> shapshotConsumerFactory;
+    private final ScenariosChecker scenariosChecker;
+    private final GrpcConfig grpcConfig;
 
-    @Value("${analyzer.topic.snapshots-topic}")
-    private String topic;
+    @Value("${spring.kafka.topics.snapshots-topic-name}")
+    private String snapshotsTopic;
 
     public void start() {
-        consumer.subscribe(List.of(topic));
-        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
+        try (Consumer<String, SensorsSnapshotAvro> sensorsSnapshotConsumer = shapshotConsumerFactory.createConsumer()) {
+            sensorsSnapshotConsumer.subscribe(List.of(snapshotsTopic));
 
-        try {
-            while (isRunning) {
-                ConsumerRecords<String, SensorsSnapshotAvro> records = consumer.poll(Duration.ofMillis(1000));
+            while(true) {
+                var snapshotRecords = sensorsSnapshotConsumer.poll(Duration.ofSeconds(3));
 
-                for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
-                    handleRecord(record);
+                if (snapshotRecords.count() > 0) {
+                    log.info("Получено {} записей", snapshotRecords.count());
+
+                    List<SensorsSnapshotAvro> snapshotList = new ArrayList<>();
+                    snapshotRecords.forEach(record -> snapshotList.add(record.value()));
+                    snapshotList.forEach(snapshot -> {
+                        List<DeviceActionRequest> actions = scenariosChecker.checkScenarios(snapshot);
+                        actions.forEach(grpcConfig::sendDeviceActions);
+                    });
+
+                    snapshotList.clear();
                 }
 
-                if (!records.isEmpty()) {
-                    consumer.commitSync();
-                }
+                sensorsSnapshotConsumer.commitSync();
             }
-            log.info("PoolLoop остановлен вручную");
         } catch (WakeupException ignored) {
-            log.warn("Возник WakeupException");
-        } catch (Exception exp) {
-            log.error("Ошибка чтения данных из топика {}", topic, exp);
-        } finally {
-            try {
-                log.info("Закрываем Consumer");
-                consumer.close();
-            } catch (Exception exp) {
-                log.warn("Ошибка при закрытии CONSUMER-a", exp);
-            }
+        } catch (Exception e) {
+            log.error("Ошибка при агрегации событий от датчиков", e);
         }
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        consumer.wakeup();
-        isRunning = false;
-    }
-
-    private void handleRecord(ConsumerRecord<String, SensorsSnapshotAvro> record) {
-        SensorsSnapshotAvro snapshot = record.value();
-        log.info("Получили SNAPSHOT состояния умного дома: {}", snapshot);
-        snapshotHandler.handle(snapshot);
     }
 }
