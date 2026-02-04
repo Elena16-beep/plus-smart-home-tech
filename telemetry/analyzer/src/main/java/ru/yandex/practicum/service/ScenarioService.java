@@ -22,7 +22,6 @@ import static ru.yandex.practicum.dal.model.ConditionType.*;
 @Service
 @RequiredArgsConstructor
 public class ScenarioService {
-
     private final ScenarioRepository scenarioRepository;
 
     @GrpcClient("hub-router")
