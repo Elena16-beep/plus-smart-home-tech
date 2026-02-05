@@ -25,7 +25,7 @@ public class ScenarioActionProducer {
 
     public void sendAction(Action action) {
         log.info("Метод sendAction");
-        log.info("Action " + action);
+        log.info("Action " + action.toString());
         DeviceActionRequest actionRequest = mapToActionRequest(action);
         log.info("Получили actionRequest");
 
@@ -49,11 +49,7 @@ public class ScenarioActionProducer {
         return DeviceActionRequest.newBuilder()
                 .setHubId(action.getScenario().getHubId())
                 .setScenarioName(action.getScenario().getName())
-                .setAction(DeviceActionProto.newBuilder()
-                        .setSensorId(action.getSensor().getId())
-                        .setType(mapActionType(action.getType()))
-                        .setValue(action.getValue())
-                        .build())
+                .setAction(toDeviceActionProto(action))
                 .setTimestamp(setTimestamp())
                 .build();
     }
@@ -67,6 +63,25 @@ public class ScenarioActionProducer {
             case INVERSE -> ActionTypeProto.INVERSE;
             case SET_VALUE -> ActionTypeProto.SET_VALUE;
         };
+    }
+
+    public DeviceActionProto toDeviceActionProto(Action action) {
+        log.info("Метод toDeviceActionProto " + action);
+        DeviceActionProto.Builder builder = DeviceActionProto.newBuilder()
+                .setSensorId(action.getSensor().getId())
+                .setType(ActionTypeProto.valueOf(action.getType().toString()));
+
+        if (action.getType() == ActionTypeAvro.SET_VALUE) {
+            if (action.getValue() == null) {
+                throw new IllegalStateException(
+                        "Для действия SET_VALUE должно быть указано значение value для id " + action.getId()
+                );
+            }
+
+            builder.setValue(action.getValue());
+        }
+
+        return builder.build();
     }
 
     private Timestamp setTimestamp() {
