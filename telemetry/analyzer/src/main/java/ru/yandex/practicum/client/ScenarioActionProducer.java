@@ -25,6 +25,7 @@ public class ScenarioActionProducer {
 
     public void sendAction(Action action) {
         log.info("Метод sendAction");
+        log.info("Action " + action);
         DeviceActionRequest actionRequest = mapToActionRequest(action);
         log.info("Получили actionRequest");
 
@@ -70,6 +71,7 @@ public class ScenarioActionProducer {
 
     private Timestamp setTimestamp() {
         Instant instant = Instant.now();
+
         return Timestamp.newBuilder()
                 .setSeconds(instant.getEpochSecond())
                 .setNanos(instant.getNano())

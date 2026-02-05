@@ -16,6 +16,8 @@ import ru.yandex.practicum.model.Scenario;
 import ru.yandex.practicum.repository.ActionRepository;
 import ru.yandex.practicum.repository.ConditionRepository;
 import ru.yandex.practicum.repository.ScenarioRepository;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,7 +45,7 @@ public class SnapshotHandler {
 
     private Boolean handleScenario(Scenario scenario, Map<String, SensorStateAvro> sensorStateMap) {
         List<Condition> conditions = conditionRepository.findAllByScenario(scenario);
-        log.info("Получили список состояний {} у сценария {}", conditions, scenario.getName());
+        log.info("Получили список состояний {} у сценария {}", Arrays.toString(conditions.toArray()), scenario.getName());
 
         return conditions.stream().noneMatch(condition -> !checkCondition(condition, sensorStateMap));
     }
@@ -110,5 +112,8 @@ public class SnapshotHandler {
     private void sendScenarioActions(Scenario scenario) {
         log.info("Метод sendScenarioActions");
         actionRepository.findAllByScenario(scenario).forEach(scenarioActionProducer::sendAction);
+
+//        actionRepository.findByScenario(scenario)
+//                .forEach(scenarioActionProducer::sendAction);
     }
 }
