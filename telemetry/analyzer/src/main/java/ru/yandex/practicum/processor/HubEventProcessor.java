@@ -21,9 +21,9 @@ import java.util.Map;
 public class HubEventProcessor implements Runnable {
     private final KafkaConsumer<String, HubEventAvro> hubConsumer;
     private final HubEventHandlers handlers;
-    @Value("${kafka.topics.hubs}")
-    private String hubsTopic;
 
+    @Value("${analyzer.topic.hub-event-topic}")
+    private String hubsTopic;
 
     @Override
     public void run() {

@@ -19,7 +19,8 @@ import java.util.List;
 public class SnapshotProcessor {
     private final KafkaConsumer<String, SensorsSnapshotAvro> snapshotConsumer;
     private final SnapshotHandler snapshotHandler;
-    @Value("${kafka.topics.snapshots}")
+
+    @Value("${analyzer.topic.snapshots-topic}")
     private String snapshotsTopic;
 
     public void start() {
