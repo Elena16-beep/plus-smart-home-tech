@@ -26,10 +26,7 @@ public class SnapshotProcessor {
     public void start() {
         try {
             snapshotConsumer.subscribe(List.of(snapshotsTopic));
-            log.info("Подписались на топик снапшотов");
-
             Runtime.getRuntime().addShutdownHook(new Thread(snapshotConsumer::wakeup));
-            log.info("Добавили wakeup");
 
             while (true) {
                 ConsumerRecords<String, SensorsSnapshotAvro> records =
@@ -37,18 +34,16 @@ public class SnapshotProcessor {
 
                 for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
                     SensorsSnapshotAvro sensorsSnapshot = record.value();
-                    log.info("Получили снимок состояния умного дома " + sensorsSnapshot);
-
+                    log.info("Получен снимок состояния умного дома " + sensorsSnapshot);
                     snapshotHandler.handleSnapshot(sensorsSnapshot);
-                    log.info("Передали в метод snapshotHandler.handleSnapshot " + sensorsSnapshot);
                 }
 
                 snapshotConsumer.commitSync();
-                log.info("Хартбит снапшот");
+                log.info("Хартбит снимков");
             }
         } catch (WakeupException ignored) {
         } catch (Exception e) {
-            log.error("Ошибка во время обработки снапшота", e);
+            log.error("Ошибка чтения данных из топика " + snapshotsTopic, e);
         } finally {
             try {
                 snapshotConsumer.commitSync();

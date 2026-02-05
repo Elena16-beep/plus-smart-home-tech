@@ -34,7 +34,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
             if (hubEvent.getHubId() == null || hubEvent.getHubId().isEmpty()) {
                 responseObserver.onError(new StatusRuntimeException(
                         Status.INVALID_ARGUMENT.
-                                withDescription("hubId is missing")));
+                                withDescription("hubId не найден")));
 
                 return;
             }
@@ -58,7 +58,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
             if (sensorEvent.getHubId() == null || sensorEvent.getHubId().isEmpty()) {
                 responseObserver.onError(new StatusRuntimeException(
                         Status.INVALID_ARGUMENT.
-                                withDescription("hubId is missing")));
+                                withDescription("hubId не найден")));
 
                 return;
             }

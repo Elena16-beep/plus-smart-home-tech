@@ -16,7 +16,7 @@ public class HubRouterController extends HubRouterControllerGrpc.HubRouterContro
     @Override
     public void handleDeviceAction(DeviceActionRequest request, StreamObserver<Empty> responseObserver) {
         try {
-            log.info("Получили DeviceAction {}", request);
+            log.info("Получили DeviceAction" + request);
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
         } catch (Exception e) {

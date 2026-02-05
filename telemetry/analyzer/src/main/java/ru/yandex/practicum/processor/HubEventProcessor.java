@@ -29,7 +29,6 @@ public class HubEventProcessor implements Runnable {
     public void run() {
         try {
             hubConsumer.subscribe(List.of(hubsTopic));
-            log.info("Подписались на топик хабов");
             Runtime.getRuntime().addShutdownHook(new Thread(hubConsumer::wakeup));
             Map<String, HubEventHandler> handlerMap = handlers.getHandlers();
 
@@ -39,7 +38,7 @@ public class HubEventProcessor implements Runnable {
                 for (ConsumerRecord<String, HubEventAvro> record : records) {
                     HubEventAvro event = record.value();
                     String payloadName = event.getPayload().getClass().getSimpleName();
-                    log.info("Получили сообщение хаба " + payloadName);
+                    log.info("Получено сообщение хаба " + payloadName);
 
                     if (handlerMap.containsKey(payloadName)) {
                         handlerMap.get(payloadName).handle(event);
@@ -49,15 +48,16 @@ public class HubEventProcessor implements Runnable {
                 }
 
                 hubConsumer.commitSync();
-                log.info("Хартбит хаб");
+                log.info("Хартбит хабов");
             }
         } catch (WakeupException ignored) {
         } catch (Exception e) {
-            log.error("Ошибка чтения данных из топика " + hubsTopic);
+            log.error("Ошибка чтения данных из топика " + hubsTopic, e);
         } finally {
             try {
                 hubConsumer.commitSync();
             } finally {
+                log.info("Закрытие Consumer");
                 hubConsumer.close();
             }
         }

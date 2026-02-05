@@ -45,7 +45,7 @@ public class SnapshotHandler {
 
     private Boolean handleScenario(Scenario scenario, Map<String, SensorStateAvro> sensorStateMap) {
         List<Condition> conditions = conditionRepository.findAllByScenario(scenario);
-        log.info("Получили список состояний {} у сценария {}", Arrays.toString(conditions.toArray()), scenario.getName());
+        log.info("Получен список состояний {} у сценария {}", Arrays.toString(conditions.toArray()), scenario.getName());
 
         return conditions.stream().noneMatch(condition -> !checkCondition(condition, sensorStateMap));
     }
@@ -112,8 +112,5 @@ public class SnapshotHandler {
     private void sendScenarioActions(Scenario scenario) {
         log.info("Метод sendScenarioActions");
         actionRepository.findAllByScenario(scenario).forEach(scenarioActionProducer::sendAction);
-
-//        actionRepository.findByScenario(scenario)
-//                .forEach(scenarioActionProducer::sendAction);
     }
 }

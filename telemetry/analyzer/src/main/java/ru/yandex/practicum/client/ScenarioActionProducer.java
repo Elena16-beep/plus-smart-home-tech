@@ -24,17 +24,16 @@ public class ScenarioActionProducer {
     }
 
     public void sendAction(Action action) {
-        log.info("Метод sendAction");
-        log.info("Action " + action.toString());
+        log.info("Метод sendAction" + action);
         DeviceActionRequest actionRequest = mapToActionRequest(action);
-        log.info("Получили actionRequest");
+        log.info("Получен actionRequest" + actionRequest);
 
         try {
             Empty response = hubRouterStub.handleDeviceAction(actionRequest);
             log.info("Действие отправлено " + actionRequest);
 
             if (response.isInitialized()) {
-                log.info("Получили ответ от хаба");
+                log.info("Получен ответ от хаба");
             } else {
                 log.info("Нет ответа от хаба");
             }

@@ -86,7 +86,7 @@ public class ScenarioAddedHandler implements HubEventHandler {
     }
 
     private Set<Action> mapToAction(ScenarioAddedEventAvro scenarioAddedEvent, Scenario scenario) {
-        log.info("Обрабатываем список действий " + scenarioAddedEvent.getActions());
+        log.info("Обработка списка действий " + scenarioAddedEvent.getActions());
 
         return scenarioAddedEvent.getActions().stream()
                 .map(action -> Action.builder()
