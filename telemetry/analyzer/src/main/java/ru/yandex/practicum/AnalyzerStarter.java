@@ -8,7 +8,7 @@ import ru.yandex.practicum.processor.SnapshotProcessor;
 
 @Component
 @RequiredArgsConstructor
-public class AnalyzerRunner implements CommandLineRunner {
+public class AnalyzerStarter implements CommandLineRunner {
     final HubEventProcessor hubEventProcessor;
     final SnapshotProcessor snapshotProcessor;
 

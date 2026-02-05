@@ -7,9 +7,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-public class Analyzer {
+public class AnalyzerApp {
     public static void main(String[] args) {
         ConfigurableApplicationContext context =
-                SpringApplication.run(Analyzer.class, args);
+                SpringApplication.run(AnalyzerApp.class, args);
     }
 }

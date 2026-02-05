@@ -40,8 +40,6 @@ public class AggregationStarter implements CommandLineRunner {
     private String snapshotsTopic;
 
     public void run(String... args) {
-//        Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
-
         try {
             consumer.subscribe(List.of(sensorsTopic));
             Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
@@ -51,7 +49,7 @@ public class AggregationStarter implements CommandLineRunner {
                 int count = 0;
 
                 for (ConsumerRecord<String, SpecificRecordBase> record : records) {
-                    log.info("Обрабатываем очередное сообщение {}", record.value());
+                    log.info("Обрабатываем сообщение " + record.value());
                     handleRecord(record);
                     manageOffsets(record, count, consumer);
                     count++;
@@ -67,9 +65,7 @@ public class AggregationStarter implements CommandLineRunner {
                 producer.flush();
                 consumer.commitSync();
             } finally {
-                log.info("Закрываем CONSUMER");
                 consumer.close();
-                log.info("Закрываем PRODUCER");
                 producer.close();
             }
         }
@@ -82,20 +78,19 @@ public class AggregationStarter implements CommandLineRunner {
     }
 
     private void handleRecord(ConsumerRecord<String, SpecificRecordBase> record) {
-        log.info("топик = {}, партиция = {}, смещение = {}, значение: {}",
+        log.info("Топик = {}, партиция = {}, смещение = {}, значение: {}",
                 record.topic(), record.partition(), record.offset(), record.value());
         SensorEventAvro event = (SensorEventAvro) record.value();
         Optional<SensorsSnapshotAvro> snapshot = snapshotService.updateState(event);
-        log.info("Получили снимок состояния {}", snapshot);
+        log.info("Снимок состояния " + snapshot);
 
         if (snapshot.isPresent()) {
-            log.info("Запись в топик Kafka");
             ProducerRecord<String, SpecificRecordBase> producerRecord = new ProducerRecord<>(snapshotsTopic,
                     null, event.getTimestamp().toEpochMilli(), event.getHubId(), snapshot.get());
             producer.send(producerRecord);
-            log.info("SNAPSHOT обновлен и отправлен {}", snapshot);
+            log.info("Снимок состояния обновлен и отправлен " + snapshot);
         } else {
-            log.info("SNAPSHOT не обновлен");
+            log.info("Снимок состояния не обновлен");
         }
     }
 
@@ -108,7 +103,7 @@ public class AggregationStarter implements CommandLineRunner {
         if (count % 10 == 0) {
             consumer.commitAsync(currentOffsets, (offsets, exception) -> {
                 if (exception != null) {
-                    log.warn("Ошибка во время фиксации оффсетов: {}", offsets, exception);
+                    log.warn("Ошибка во время фиксации оффсетов " + offsets, exception);
                 }
             });
         }
