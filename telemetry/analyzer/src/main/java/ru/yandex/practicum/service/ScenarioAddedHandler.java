@@ -38,9 +38,11 @@ public class ScenarioAddedHandler implements HubEventHandler {
 
         if (scenarioOpt.isEmpty()) {
             Scenario scenario = scenarioRepository.save(mapToScenario(event));
+
             if (checkSensorsInScenarioConditions(scenarioAddedEvent, event.getHubId())) {
                 conditionRepository.saveAll(mapToCondition(scenarioAddedEvent, scenario));
             }
+
             if (checkSensorsInScenarioActions(scenarioAddedEvent, event.getHubId())) {
                 actionRepository.saveAll(mapToAction(scenarioAddedEvent, scenario));
             }
@@ -84,7 +86,8 @@ public class ScenarioAddedHandler implements HubEventHandler {
     }
 
     private Set<Action> mapToAction(ScenarioAddedEventAvro scenarioAddedEvent, Scenario scenario) {
-        log.info("Обрабатываем список действий {}", scenarioAddedEvent.getActions());
+        log.info("Обрабатываем список действий " + scenarioAddedEvent.getActions());
+
         return scenarioAddedEvent.getActions().stream()
                 .map(action -> Action.builder()
                         .sensor(sensorRepository.findById(action.getSensorId()).orElseThrow())

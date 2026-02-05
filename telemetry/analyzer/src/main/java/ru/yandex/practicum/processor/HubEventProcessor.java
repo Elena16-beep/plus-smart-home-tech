@@ -34,18 +34,17 @@ public class HubEventProcessor implements Runnable {
             Map<String, HubEventHandler> handlerMap = handlers.getHandlers();
 
             while (true) {
-
                 ConsumerRecords<String, HubEventAvro> records = hubConsumer.poll(Duration.ofMillis(1000));
 
                 for (ConsumerRecord<String, HubEventAvro> record : records) {
                     HubEventAvro event = record.value();
                     String payloadName = event.getPayload().getClass().getSimpleName();
-                    log.info("Получили сообщение хаба типа: {}", payloadName);
+                    log.info("Получили сообщение хаба " + payloadName);
 
                     if (handlerMap.containsKey(payloadName)) {
                         handlerMap.get(payloadName).handle(event);
                     } else {
-                        throw new IllegalArgumentException("Не могу найти обработчик для события " + event);
+                        throw new IllegalArgumentException("Не найден обработчик для события " + event);
                     }
                 }
 
@@ -54,7 +53,7 @@ public class HubEventProcessor implements Runnable {
             }
         } catch (WakeupException ignored) {
         } catch (Exception e) {
-            log.error("Ошибка чтения данных из топика {}", hubsTopic);
+            log.error("Ошибка чтения данных из топика " + hubsTopic);
         } finally {
             try {
                 hubConsumer.commitSync();

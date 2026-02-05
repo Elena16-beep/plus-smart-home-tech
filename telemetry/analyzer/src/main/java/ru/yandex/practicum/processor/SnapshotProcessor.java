@@ -37,10 +37,10 @@ public class SnapshotProcessor {
 
                 for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
                     SensorsSnapshotAvro sensorsSnapshot = record.value();
-                    log.info("Получили снимок состояния умного дома: {}", sensorsSnapshot);
+                    log.info("Получили снимок состояния умного дома " + sensorsSnapshot);
 
                     snapshotHandler.handleSnapshot(sensorsSnapshot);
-                    log.info("Передали в метод snapshotHandler.handleSnapshot: {}", sensorsSnapshot);
+                    log.info("Передали в метод snapshotHandler.handleSnapshot " + sensorsSnapshot);
                 }
 
                 snapshotConsumer.commitSync();

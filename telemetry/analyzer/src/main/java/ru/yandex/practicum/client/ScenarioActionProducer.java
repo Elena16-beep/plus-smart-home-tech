@@ -24,13 +24,13 @@ public class ScenarioActionProducer {
     }
 
     public void sendAction(Action action) {
-        log.info("Зашли в метод sendAction");
+        log.info("Метод sendAction");
         DeviceActionRequest actionRequest = mapToActionRequest(action);
-        log.info("получили actionRequest");
+        log.info("Получили actionRequest");
 
         try {
             Empty response = hubRouterStub.handleDeviceAction(actionRequest);
-            log.info("Действие {} отправлено в hub-router", actionRequest);
+            log.info("Действие отправлено " + actionRequest);
 
             if (response.isInitialized()) {
                 log.info("Получили ответ от хаба");
@@ -38,12 +38,12 @@ public class ScenarioActionProducer {
                 log.info("Нет ответа от хаба");
             }
         } catch (RuntimeException e) {
-            log.info("Поймали ошибку отправки в хаброутер");
+            log.info("Ошибка отправки");
         }
     }
 
     private DeviceActionRequest mapToActionRequest(Action action) {
-        log.info("Зашли в метод mapToActionRequest");
+        log.info("Метод mapToActionRequest");
 
         return DeviceActionRequest.newBuilder()
                 .setHubId(action.getScenario().getHubId())
@@ -58,7 +58,7 @@ public class ScenarioActionProducer {
     }
 
     private ActionTypeProto mapActionType(ActionTypeAvro actionType) {
-        log.info("мапим тип действия {}", actionType);
+        log.info("Метод mapActionType " + actionType);
 
         return switch (actionType) {
             case ACTIVATE -> ActionTypeProto.ACTIVATE;

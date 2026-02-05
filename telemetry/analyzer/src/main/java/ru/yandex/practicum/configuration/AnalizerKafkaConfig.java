@@ -1,4 +1,4 @@
-package ru.yandex.practicum.config;
+package ru.yandex.practicum.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.Consumer;

@@ -18,6 +18,7 @@ import ru.yandex.practicum.repository.ConditionRepository;
 import ru.yandex.practicum.repository.ScenarioRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -29,20 +30,20 @@ public class SnapshotHandler {
     private final ScenarioActionProducer scenarioActionProducer;
 
     public void handleSnapshot(SensorsSnapshotAvro sensorsSnapshot) {
-        log.info("Зашли в метод handleSnapshot");
+        log.info("Метод handleSnapshot");
         Map<String, SensorStateAvro> sensorStateMap = sensorsSnapshot.getSensorsState();
         List<Scenario> scenarios = scenarioRepository.findByHubId(sensorsSnapshot.getHubId());
         scenarios.stream()
                 .filter(scenario -> handleScenario(scenario, sensorStateMap))
                 .forEach(scenario -> {
-                    log.info("send actions from scenario with name {}", scenario.getName());
+                    log.info("Отправка действия для сценария " + scenario.getName());
                     sendScenarioActions(scenario);
                 });
     }
 
     private Boolean handleScenario(Scenario scenario, Map<String, SensorStateAvro> sensorStateMap) {
         List<Condition> conditions = conditionRepository.findAllByScenario(scenario);
-        log.info("получили список кондиций {} у сценария name = {}", conditions, scenario.getName());
+        log.info("Получили список состояний {} у сценария {}", conditions, scenario.getName());
 
         return conditions.stream().noneMatch(condition -> !checkCondition(condition, sensorStateMap));
     }
@@ -92,7 +93,7 @@ public class SnapshotHandler {
 
         switch (operation) {
             case EQUALS -> {
-                return targetValue == currentValue;
+                return Objects.equals(targetValue, currentValue);
             }
             case LOWER_THAN -> {
                 return currentValue < targetValue;
@@ -107,7 +108,7 @@ public class SnapshotHandler {
     }
 
     private void sendScenarioActions(Scenario scenario) {
-        log.info("Зашли в метод sendScenarioActions");
+        log.info("Метод sendScenarioActions");
         actionRepository.findAllByScenario(scenario).forEach(scenarioActionProducer::sendAction);
     }
 }

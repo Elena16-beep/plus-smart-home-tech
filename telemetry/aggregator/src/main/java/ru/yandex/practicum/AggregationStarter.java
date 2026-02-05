@@ -51,7 +51,7 @@ public class AggregationStarter implements CommandLineRunner {
                 for (ConsumerRecord<String, SpecificRecordBase> record : records) {
                     log.info("Обрабатываем сообщение " + record.value());
                     handleRecord(record);
-                    manageOffsets(record, count, consumer);
+                    manageOffsets(record, count);
                     count++;
                 }
 
@@ -94,7 +94,7 @@ public class AggregationStarter implements CommandLineRunner {
         }
     }
 
-    private void manageOffsets(ConsumerRecord<String, SpecificRecordBase> record, int count, Consumer<String, SpecificRecordBase> consumer) {
+    private void manageOffsets(ConsumerRecord<String, SpecificRecordBase> record, int count) {
         currentOffsets.put(
                 new TopicPartition(record.topic(), record.partition()),
                 new OffsetAndMetadata(record.offset() + 1)
