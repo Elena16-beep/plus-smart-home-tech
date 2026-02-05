@@ -38,11 +38,11 @@ db:
   image: postgres:16.1
   container_name: postgres-analyzer
   environment:
-    POSTGRES_USER: analyzer
-    POSTGRES_PASSWORD: 12345
-    POSTGRES_DB: analyzer
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: smart-home
   ports:
-    - "6541:5432"
+    - "5432:5432"
   volumes:
     - /etc/localtime:/etc/localtime:ro
     - /etc/timezone:/etc/timezone:ro
