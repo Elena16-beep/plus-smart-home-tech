@@ -30,6 +30,15 @@ public class EventController extends CollectorControllerGrpc.CollectorController
     public void collectHubEvent(HubEventProto hubEventProto, StreamObserver<Empty> responseObserver) {
         try {
             HubEvent hubEvent = hubEventProtoMapper.toJava(hubEventProto);
+
+            if (hubEvent.getHubId() == null || hubEvent.getHubId().isEmpty()) {
+                responseObserver.onError(new StatusRuntimeException(
+                        Status.INVALID_ARGUMENT.
+                                withDescription("hubId не найден")));
+
+                return;
+            }
+
             eventService.createHubEvent(hubEvent);
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -45,6 +54,15 @@ public class EventController extends CollectorControllerGrpc.CollectorController
     public void collectSensorEvent(SensorEventProto sensorEventProto, StreamObserver<Empty> responseObserver) {
         try {
             SensorEvent sensorEvent = sensorEventProtoMapper.toJava(sensorEventProto);
+
+            if (sensorEvent.getHubId() == null || sensorEvent.getHubId().isEmpty()) {
+                responseObserver.onError(new StatusRuntimeException(
+                        Status.INVALID_ARGUMENT.
+                                withDescription("hubId не найден")));
+
+                return;
+            }
+
             eventService.createSensorEvent(sensorEvent);
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();

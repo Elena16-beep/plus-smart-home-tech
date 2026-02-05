@@ -11,3 +11,6 @@ kafka:
   serializers:
     key: "org.apache.kafka.common.serialization.StringSerializer"
     value: "ru.yandex.practicum.serializer.AvroSerializer"
+
+server:
+  port: 8081
