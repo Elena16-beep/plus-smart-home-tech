@@ -1,7 +1,6 @@
 package ru.yandex.practicum.configuration;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,7 @@ public class AnalizerKafkaConfig {
     private final Environment environment;
 
     @Bean
-    public Consumer<String, SensorsSnapshotAvro> getSnapsotConsumer() {
+    public KafkaConsumer<String, SensorsSnapshotAvro> getSnapsotConsumer() {
         Properties config = new Properties();
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.bootstrap-servers"));
@@ -34,7 +33,7 @@ public class AnalizerKafkaConfig {
     }
 
     @Bean
-    public Consumer<String, HubEventAvro> getHubEventConsumer() {
+    public KafkaConsumer<String, HubEventAvro> getHubEventConsumer() {
         Properties config = new Properties();
 
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, environment.getProperty("spring.kafka.bootstrap-servers"));
