@@ -1,16 +1,26 @@
 package ru.yandex.practicum.model.sensor;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 public class ClimateSensorEvent extends SensorEvent {
-    private int temperatureC;
-    private int humidity;
-    private int co2Level;
+    @NotNull
+    private Integer temperatureC;
+
+    @NotNull
+    private Integer humidity;
+
+    @NotNull
+    private Integer co2Level;
 
     @Override
     public SensorEventType getType() {

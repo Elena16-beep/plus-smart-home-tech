@@ -4,7 +4,7 @@ import org.apache.avro.specific.SpecificRecordBase;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.model.sensor.*;
 
-public class SensorEventMapper {
+public class SensorEventAvroMapper {
     public static SensorEventAvro toSensorEventAvro(SensorEvent event) {
         return SensorEventAvro.newBuilder()
                 .setId(event.getId())
@@ -29,7 +29,7 @@ public class SensorEventMapper {
 
                 return MotionSensorAvro.newBuilder()
                         .setLinkQuality(motionSensorEvent.getLinkQuality())
-                        .setMotion(motionSensorEvent.isMotion())
+                        .setMotion(motionSensorEvent.getMotion())
                         .setVoltage(motionSensorEvent.getVoltage())
                         .build();
             }
@@ -37,7 +37,7 @@ public class SensorEventMapper {
                 SwitchSensorEvent switchSensorEvent = (SwitchSensorEvent) event;
 
                 return SwitchSensorAvro.newBuilder()
-                        .setState(switchSensorEvent.isState())
+                        .setState(switchSensorEvent.getState())
                         .build();
             }
             case CLIMATE_SENSOR_EVENT -> {

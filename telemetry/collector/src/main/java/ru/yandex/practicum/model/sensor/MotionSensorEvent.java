@@ -1,16 +1,26 @@
 package ru.yandex.practicum.model.sensor;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 public class MotionSensorEvent extends SensorEvent {
-    private int linkQuality;
-    private boolean motion;
-    private int voltage;
+    @NotNull
+    private Integer linkQuality;
+
+    @NotNull
+    private Boolean motion;
+
+    @NotNull
+    private Integer voltage;
 
     @Override
     public SensorEventType getType() {

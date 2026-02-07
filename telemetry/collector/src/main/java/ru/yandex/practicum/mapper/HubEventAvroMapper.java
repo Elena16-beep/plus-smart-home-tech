@@ -11,7 +11,7 @@ import ru.yandex.practicum.model.hub.ScenarioCondition;
 import ru.yandex.practicum.model.hub.ScenarioRemovedEvent;
 import java.util.List;
 
-public class HubEventMapper {
+public class HubEventAvroMapper {
     public static HubEventAvro toHubEventAvro(HubEvent hubEvent) {
         return HubEventAvro.newBuilder()
                 .setHubId(hubEvent.getHubId())
@@ -40,10 +40,10 @@ public class HubEventMapper {
             case SCENARIO_ADDED -> {
                 ScenarioAddedEvent scenarioAddedEvent = (ScenarioAddedEvent) hubEvent;
                 List<DeviceActionAvro> deviceActionsAvro = scenarioAddedEvent.getActions().stream()
-                        .map(HubEventMapper::toDeviceActionAvro)
+                        .map(HubEventAvroMapper::toDeviceActionAvro)
                         .toList();
                 List<ScenarioConditionAvro> scenarioConditionsAvro = scenarioAddedEvent.getConditions().stream()
-                        .map(HubEventMapper::toScenarioConditionAvro)
+                        .map(HubEventAvroMapper::toScenarioConditionAvro)
                         .toList();
 
                 return ScenarioAddedEventAvro.newBuilder()
