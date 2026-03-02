@@ -21,30 +21,35 @@ public class ShoppingCartController implements ShoppingCartFeignClient {
     @Override
     public ShoppingCartDto addProductToShoppingCart(String username, Map<UUID, Long> request) {
         log.info("Добавление Product в ShoppingCart, request: {}", request);
+
         return shoppingCartService.addProductToShoppingCart(username, request);
     }
 
     @Override
     public ShoppingCartDto changeProductQuantity(String username, ChangeProductQuantityRequest request) {
         log.info("Изменение количества Product в ShoppingCart, request: {}", request);
+
         return shoppingCartService.changeProductQuantity(username, request);
     }
 
     @Override
     public ShoppingCartDto getShoppingCart(String username) {
         log.info("Получение ShoppingCart для пользователя, username: {}", username);
+
         return shoppingCartService.getShoppingCart(username);
     }
 
     @Override
     public ShoppingCartDto removeFromShoppingCart(String username, List<UUID> productIds) {
         log.info("Удаление Product из ShoppingCart, productIds: {}", productIds);
+
         return shoppingCartService.removeFromShoppingCart(username, productIds);
     }
 
     @Override
     public void deactivateCurrentShoppingCart(String username) {
         log.info("Деактивация ShoppingCart пользователя, username: {}", username);
+
         shoppingCartService.deactivateCurrentShoppingCart(username);
     }
 }

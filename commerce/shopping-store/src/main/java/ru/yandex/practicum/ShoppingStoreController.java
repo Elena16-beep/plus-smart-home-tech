@@ -12,7 +12,6 @@ import ru.yandex.practicum.client.ShoppingStoreFeignClient;
 import ru.yandex.practicum.dto.ProductDto;
 import ru.yandex.practicum.enums.ProductCategory;
 import ru.yandex.practicum.request.SetProductQuantityStateRequest;
-import ru.yandex.practicum.service.ShoppingStoreServiceImpl;
 import java.util.UUID;
 
 @Slf4j
@@ -25,18 +24,21 @@ public class ShoppingStoreController implements ShoppingStoreFeignClient {
     @Override
     public ProductDto createNewProduct(@Valid @RequestBody ProductDto productDto) {
         log.info("Создание Product dto: {}", productDto);
+
         return shoppingStoreService.createNewProduct(productDto);
     }
 
     @Override
     public ProductDto updateProduct(@Valid @RequestBody ProductDto productDto) {
         log.info("Обновление Product dto: {}", productDto);
+
         return shoppingStoreService.updateProduct(productDto);
     }
 
     @Override
     public ProductDto getProduct(@NotNull @PathVariable UUID productId) {
         log.info("Получение Product id: {}", productId);
+
         return shoppingStoreService.getProduct(productId);
     }
 
@@ -44,18 +46,21 @@ public class ShoppingStoreController implements ShoppingStoreFeignClient {
     public Page<ProductDto> getProducts(@NotNull @RequestParam("category") ProductCategory category,
                                         @Valid @SpringQueryMap Pageable pageable) {
         log.info("Получение списка Product по категории: {}", category);
+
         return shoppingStoreService.getProducts(category, pageable);
     }
 
     @Override
     public boolean removeProductFromStore(@NotNull @RequestBody UUID productId) {
         log.info("Удаление Product id: {}", productId);
+
         return shoppingStoreService.removeProductFromStore(productId);
     }
 
     @Override
     public boolean setProductQuantityState(@Valid @ModelAttribute SetProductQuantityStateRequest request) {
         log.info("Обновление статуса количества Product request: {}", request);
+        
         return shoppingStoreService.setProductQuantityState(request);
     }
 }

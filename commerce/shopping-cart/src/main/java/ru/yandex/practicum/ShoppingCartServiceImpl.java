@@ -18,7 +18,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ShoppingCartServiceImpl implements ShoppingCartService {
-
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartMapper shoppingCartMapper;
     private final WarehouseFeignClient warehouseFeignClient;
@@ -74,6 +73,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         if (!cart.getActive()) {
             throw new RuntimeException("Корзина деактивирована");
         }
+
         if (!cart.getProducts().keySet().containsAll(productIds)) {
             throw new NoProductsInShoppingCartException();
         }
@@ -92,6 +92,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         if (cart.getStatus() == ShoppingCartStatus.DEACTIVATE) {
             log.info("Текущее состояние корзины пользователя: {} - {}, повторная деактивация невозможна", username, cart.getStatus());
+
             return;
         }
 

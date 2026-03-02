@@ -34,7 +34,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                     request.getProductId());
         }
 
-        warehouseRepository.save(WarehouseMapper.toEntity(request));
+        warehouseRepository.save(WarehouseMapper.mapToEntity(request));
     }
 
     @Override
