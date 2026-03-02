@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.warehouse;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;

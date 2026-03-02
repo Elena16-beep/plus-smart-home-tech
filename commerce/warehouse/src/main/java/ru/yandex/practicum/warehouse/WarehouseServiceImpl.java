@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.warehouse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

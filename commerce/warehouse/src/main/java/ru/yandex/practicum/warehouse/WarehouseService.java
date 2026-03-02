@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.warehouse;
 
 import ru.yandex.practicum.interaction.api.dto.AddressDto;
 import ru.yandex.practicum.interaction.api.dto.BookedProductsDto;

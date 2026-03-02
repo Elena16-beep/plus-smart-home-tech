@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.warehouse;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
