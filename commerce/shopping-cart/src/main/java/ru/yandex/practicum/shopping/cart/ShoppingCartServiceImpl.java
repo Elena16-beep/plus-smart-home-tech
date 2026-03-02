@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.interaction.api.client.WarehouseFeignClient;
+import ru.yandex.practicum.interaction.api.dto.BookedProductsDto;
 import ru.yandex.practicum.interaction.api.dto.ShoppingCartDto;
 import ru.yandex.practicum.interaction.api.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.interaction.api.exception.NotAuthorizedUserException;
@@ -33,7 +34,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         Map<UUID, Long> currentProducts = cart.getProducts();
         request.forEach((productId, quantity) -> currentProducts.merge(productId, quantity, Long::sum));
-        warehouseFeignClient.checkProductQuantityEnoughForShoppingCart(shoppingCartMapper.mapToCartDto(cart));
+        BookedProductsDto bookedProductsDto = warehouseFeignClient.checkProductQuantityEnoughForShoppingCart(shoppingCartMapper.mapToCartDto(cart));
+        log.info("Проверка на наличие товаров по параметрам: {}", bookedProductsDto);
 
         ShoppingCart savedCart = shoppingCartRepository.save(cart);
         log.info("Product добавлен в корзину: {}", savedCart);
