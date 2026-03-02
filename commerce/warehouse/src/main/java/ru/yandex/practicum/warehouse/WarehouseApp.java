@@ -1,4 +1,4 @@
-package ru.yandex.practicum.shopping.cart;
+package ru.yandex.practicum.warehouse;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,9 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableFeignClients
 @EnableDiscoveryClient
-@ConfigurationPropertiesScan({"ru.yandex.practicum.interaction.api", "ru.yandex.practicum.shopping.cart"})
-public class ShoppingCartApp {
+@ConfigurationPropertiesScan({"ru.yandex.practicum.interaction.api", "ru.yandex.practicum.warehouse"})
+public class WarehouseApp {
     public static void main(String[] args) {
-        SpringApplication.run(ShoppingCartApp.class, args);
+        SpringApplication.run(WarehouseApp.class, args);
     }
 }
