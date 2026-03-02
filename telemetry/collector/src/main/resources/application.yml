@@ -1,16 +1,11 @@
-grpc:
-  server:
-    port: 59091
-    reflection-service-enabled: true
-
-kafka:
-  bootstrap-servers: localhost:9092
-  topics:
-    hubs: telemetry.hubs.v1
-    sensors: telemetry.sensors.v1
-  serializers:
-    key: "org.apache.kafka.common.serialization.StringSerializer"
-    value: "ru.yandex.practicum.serializer.AvroSerializer"
-
-server:
-  port: 8081
+spring:
+  application:
+    name: collector
+  config:
+    import: configserver:http://localhost:8888
+  cloud:
+    config:
+      fail-fast: true
+      retry:
+        useRandomPolicy: true
+        max-interval: 6000

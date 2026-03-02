@@ -6,12 +6,14 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import java.util.Properties;
 
 @Configuration
+@ConfigurationProperties("aggregator")
 @RequiredArgsConstructor
 public class AggregatorKafkaConfig {
     private final Environment environment;

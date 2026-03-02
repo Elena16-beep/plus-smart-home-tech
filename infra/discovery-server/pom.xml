@@ -33,7 +33,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.yandex.practicum.discovery.server.DiscoveryServer</mainClass>
+                    <mainClass>ru.yandex.practicum.discovery-server.DiscoveryServer</mainClass>
                     <layout>JAR</layout>
                 </configuration>
             </plugin>
