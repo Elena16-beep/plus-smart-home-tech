@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.shopping.cart;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;

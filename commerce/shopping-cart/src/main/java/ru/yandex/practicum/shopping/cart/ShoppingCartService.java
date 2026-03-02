@@ -1,4 +1,4 @@
-package ru.yandex.practicum;
+package ru.yandex.practicum.shopping.cart;
 
 import ru.yandex.practicum.dto.ShoppingCartDto;
 import ru.yandex.practicum.request.ChangeProductQuantityRequest;
