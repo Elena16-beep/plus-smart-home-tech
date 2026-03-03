@@ -1,0 +1,19 @@
+package ru.yandex.practicum.interaction.api.dto;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import java.util.Map;
+import java.util.UUID;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ShoppingCartDto {
+    @NotNull
+    private UUID shoppingCartId;
+
+    @NotNull
+    private Map<UUID, Long> products;
+}
