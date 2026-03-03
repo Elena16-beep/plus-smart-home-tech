@@ -9,6 +9,8 @@ import ru.yandex.practicum.interaction.api.dto.BookedProductsDto;
 import ru.yandex.practicum.interaction.api.dto.ShoppingCartDto;
 import ru.yandex.practicum.interaction.api.exception.NoProductsInShoppingCartException;
 import ru.yandex.practicum.interaction.api.exception.NotAuthorizedUserException;
+import ru.yandex.practicum.interaction.api.exception.ShoppingCartDeactivateException;
+import ru.yandex.practicum.interaction.api.exception.ShoppingCartNotFoundException;
 import ru.yandex.practicum.interaction.api.request.ChangeProductQuantityRequest;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +29,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCartDto addProductToShoppingCart(String username, Map<UUID, Long> request) {
         ShoppingCart cart = getShoppingCartByUser(username);
-
-        if (cart.getStatus() == ShoppingCartStatus.DEACTIVATE) {
-            throw new IllegalStateException("Корзина деактивирована: " + cart);
-        }
-
+        validateCartStatus(cart);
         Map<UUID, Long> currentProducts = cart.getProducts();
         request.forEach((productId, quantity) -> currentProducts.merge(productId, quantity, Long::sum));
         BookedProductsDto bookedProductsDto = warehouseFeignClient.checkProductQuantityEnoughForShoppingCart(shoppingCartMapper.mapToCartDto(cart));
@@ -47,6 +45,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCartDto changeProductQuantity(String username, ChangeProductQuantityRequest request) {
         ShoppingCart cart = getShoppingCartByUser(username);
+        validateCartStatus(cart);
 
         if (request.getNewQuantity() > 0) {
             cart.getProducts().put(request.getProductId(), request.getNewQuantity());
@@ -71,10 +70,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCartDto removeFromShoppingCart(String username, List<UUID> productIds) {
         ShoppingCart cart = getShoppingCartByUser(username);
-
-        if (!cart.getActive()) {
-            throw new RuntimeException("Корзина деактивирована");
-        }
+        validateCartStatus(cart);
 
         if (!cart.getProducts().keySet().containsAll(productIds)) {
             throw new NoProductsInShoppingCartException();
@@ -91,12 +87,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public void deactivateCurrentShoppingCart(String username) {
         ShoppingCart cart = getShoppingCartByUser(username);
-
-        if (cart.getStatus() == ShoppingCartStatus.DEACTIVATE) {
-            log.info("Текущее состояние корзины пользователя: {} - {}, повторная деактивация невозможна", username, cart.getStatus());
-
-            return;
-        }
+        validateCartStatus(cart);
 
         cart.setStatus(ShoppingCartStatus.DEACTIVATE);
         ShoppingCart savedCart = shoppingCartRepository.save(cart);
@@ -113,12 +104,25 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartRepository.findByUsername(username).orElseGet(() -> {
             ShoppingCart newCart = ShoppingCart.builder()
                     .username(username)
-                    .active(true)
                     .build();
             ShoppingCart savedCart = shoppingCartRepository.save(newCart);
             log.info("Создана новая корзина покупателя: {}", username);
 
             return savedCart;
         });
+    }
+
+    private void validateCartStatus(ShoppingCart shoppingCart) {
+        if (shoppingCart == null) {
+            throw new ShoppingCartNotFoundException();
+        }
+
+        if (shoppingCart.getStatus() == null) {
+            throw new IllegalStateException("Статус корзины не определен");
+        }
+
+        if (shoppingCart.getStatus().equals(ShoppingCartStatus.DEACTIVATE)) {
+            throw new ShoppingCartDeactivateException(("Корзина пользователя деактивирована"));
+        }
     }
 }

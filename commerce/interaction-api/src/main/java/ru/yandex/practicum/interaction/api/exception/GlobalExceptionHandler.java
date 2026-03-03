@@ -24,6 +24,13 @@ public class GlobalExceptionHandler {
         return ApiError.fromException(e, HttpStatus.NOT_FOUND);
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ShoppingCartNotFoundException.class)
+    public ApiError handleShoppingCartNotFound(ShoppingCartNotFoundException e) {
+        log.warn("ShoppingCart not found: {}", e.getMessage());
+        return ApiError.fromException(e, HttpStatus.NOT_FOUND);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(SpecifiedProductAlreadyInWarehouseException.class)
     public ApiError handleProductAlreadyInWarehouse(SpecifiedProductAlreadyInWarehouseException e) {

@@ -52,9 +52,11 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
 
     @Override
     public Page<ProductDto> getProducts(ProductCategory productCategory, Pageable pageable) {
-        Page<ProductDto> products =
-                productRepository.findByProductCategory(productCategory, pageable).map(productMapper::mapToProductDto);
-        log.info("Получен список Product по категории: {}", products);
+        Page<ProductDto> products = productRepository
+                .findByProductCategoryAndProductState(productCategory, ProductState.ACTIVE, pageable)
+                .map(productMapper::mapToProductDto);
+
+        log.info("Получен список доступных товаров по категории {}: {}", productCategory, products);
 
         return products;
     }

@@ -5,9 +5,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.interaction.api.enums.ProductCategory;
+import ru.yandex.practicum.interaction.api.enums.ProductState;
+
 import java.util.UUID;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, UUID> {
     Page<Product> findByProductCategory(ProductCategory category, Pageable pageable);
+
+    Page<Product> findByProductCategoryAndProductState(ProductCategory category, ProductState state, Pageable pageable);
 }

@@ -13,6 +13,8 @@ import ru.yandex.practicum.interaction.api.exception.ProductNotFoundException;
 import ru.yandex.practicum.interaction.api.exception.SpecifiedProductAlreadyInWarehouseException;
 import ru.yandex.practicum.interaction.api.request.AddProductToWarehouseRequest;
 import ru.yandex.practicum.interaction.api.request.NewProductInWarehouseRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class WarehouseServiceImpl implements WarehouseService {
     private final WarehouseRepository warehouseRepository;
-    private final WarehouseMapper WarehouseMapper;
+    private final WarehouseMapper warehouseMapper;
 
     @Override
     @Transactional
@@ -34,7 +36,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                     request.getProductId());
         }
 
-        warehouseRepository.save(WarehouseMapper.mapToEntity(request));
+        warehouseRepository.save(warehouseMapper.mapToEntity(request));
     }
 
     @Override
@@ -107,17 +109,38 @@ public class WarehouseServiceImpl implements WarehouseService {
                 .stream()
                 .collect(Collectors.toMap(WarehouseProduct::getProductId, Function.identity()));
 
+        List<String> missingProducts = new ArrayList<>();
+        List<String> insufficientProducts = new ArrayList<>();
+
         for (Map.Entry<UUID, Long> cartProduct : cartProducts.entrySet()) {
             WarehouseProduct warehouseProduct = products.get(cartProduct.getKey());
+            UUID productId = cartProduct.getKey();
+            Long requestedQuantity = cartProduct.getValue();
 
             if (warehouseProduct == null) {
-                throw new ProductNotFoundException("Отсутствует Product с id: ", cartProduct.getKey());
+                missingProducts.add(String.format("Товар с id: %s", productId));
+            } else if (requestedQuantity > warehouseProduct.getQuantity()) {
+                insufficientProducts.add(String.format("Товар с id: %s (запрошено: %d, доступно: %d)",
+                        productId, requestedQuantity, warehouseProduct.getQuantity()));
             }
+        }
 
-            if (cartProduct.getValue() > warehouseProduct.getQuantity()) {
-                throw new ProductInShoppingCartLowQuantityInWarehouse("На складе не хватает Product с id: ",
-                        warehouseProduct.getProductId());
-            }
+        if (!missingProducts.isEmpty()) {
+            throw new ProductNotFoundException(
+                    "Отсутствуют продукты на складе: " + String.join(", ", missingProducts),
+                    missingProducts.stream()
+                            .map(s -> UUID.fromString(s.split(": ")[1]))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        if (!insufficientProducts.isEmpty()) {
+            throw new ProductInShoppingCartLowQuantityInWarehouse(
+                    "Недостаточно продуктов на складе: " + String.join(", ", insufficientProducts),
+                    insufficientProducts.stream()
+                            .map(s -> UUID.fromString(s.split(": ")[1]))
+                            .collect(Collectors.toList())
+            );
         }
     }
 }

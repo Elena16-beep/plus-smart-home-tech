@@ -23,8 +23,6 @@ public class ShoppingCart {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    private Boolean active;
-
     @ElementCollection
     @Column(name = "quantity")
     @MapKeyColumn(name = "product_id")
@@ -33,5 +31,6 @@ public class ShoppingCart {
     private Map<UUID, Long> products = new HashMap<>();
 
     @Enumerated(EnumType.STRING)
-    private ShoppingCartStatus status;
+    @Builder.Default
+    private ShoppingCartStatus status = ShoppingCartStatus.ACTIVE;
 }
