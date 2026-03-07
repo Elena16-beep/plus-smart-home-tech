@@ -27,10 +27,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public DeliveryDto delivery(DeliveryDto dto) {
-        log.info("Создание доставки: {}", dto);
+    public DeliveryDto delivery(DeliveryDto deliveryDto) {
+        log.info("Создание доставки: {}", deliveryDto);
 
-        Delivery delivery = deliveryMapper.mapToEntity(dto);
+        Delivery delivery = deliveryMapper.mapToEntity(deliveryDto);
         delivery.setDeliveryState(DeliveryState.CREATED);
         Delivery saved = deliveryRepository.save(delivery);
 
@@ -74,25 +74,26 @@ public class DeliveryServiceImpl implements DeliveryService {
         Delivery delivery = getDeliveryById(deliveryId);
         delivery.setDeliveryState(DeliveryState.FAILED);
 
-        orderFeignClient.deliveryFailed(delivery.getOrderId());
+        OrderDto orderDto = orderFeignClient.deliveryFailed(delivery.getOrderId());
+        log.info("Заказ не доставлен, orderDto: {}", orderDto);
+
         deliveryRepository.save(delivery);
     }
 
     @Override
     @Transactional
-    public BigDecimal cost(OrderDto order) {
-        log.info("Расчёт стоимости доставки для заказа: {}", order.getOrderId());
+    public BigDecimal cost(OrderDto orderDto) {
+        log.info("Расчёт стоимости доставки для заказа: {}", orderDto.getOrderId());
 
-        Delivery delivery = getDeliveryById(order.getDeliveryId());
+        Delivery delivery = getDeliveryById(orderDto.getDeliveryId());
 
-        delivery.setDeliveryWeight(order.getDeliveryWeight().doubleValue());
-        delivery.setDeliveryVolume(order.getDeliveryVolume().doubleValue());
-        delivery.setFragile(order.getFragile());
+        delivery.setDeliveryWeight(orderDto.getDeliveryWeight().doubleValue());
+        delivery.setDeliveryVolume(orderDto.getDeliveryVolume().doubleValue());
+        delivery.setFragile(orderDto.getFragile());
 
         BigDecimal totalCost = calculateTotalCost(delivery);
 
         deliveryRepository.save(delivery);
-
         log.info("Стоимость доставки: {}", totalCost);
 
         return totalCost;

@@ -89,14 +89,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto deliveryFailed(UUID orderId) {
-//        return changeState(orderId, OrderState.DELIVERY_FAILED);
-
-        Order order = getOrderById(orderId);
-        order.setState(OrderState.DELIVERY_FAILED);
-        OrderDto orderDto = orderMapper.mapToDto(orderRepository.save(order));
-        log.info("Заказ создан: {}", orderDto);
-
-        return orderDto;
+        return changeState(orderId, OrderState.DELIVERY_FAILED);
     }
 
     @Override

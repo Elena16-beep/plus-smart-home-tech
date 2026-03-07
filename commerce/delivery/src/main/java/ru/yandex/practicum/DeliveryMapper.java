@@ -16,15 +16,15 @@ public interface DeliveryMapper {
     DeliveryDto mapToDto(Delivery delivery);
 
     @Mapping(target = "deliveryVolume",
-            expression = "java(dto.getDeliveryVolume() != null ? dto.getDeliveryVolume() : 1.0)")
+            expression = "java(deliveryDto.getDeliveryVolume() != null ? deliveryDto.getDeliveryVolume() : 1.0)")
     @Mapping(target = "deliveryWeight",
-            expression = "java(dto.getDeliveryWeight() != null ? dto.getDeliveryWeight() : 5.0)")
+            expression = "java(deliveryDto.getDeliveryWeight() != null ? deliveryDto.getDeliveryWeight() : 5.0)")
     @Mapping(target = "fragile",
-            expression = "java(dto.getFragile() != null ? dto.getFragile() : false)")
+            expression = "java(deliveryDto.getFragile() != null ? deliveryDto.getFragile() : false)")
     @Mapping(target = "fromAddress", source = "fromAddress")
     @Mapping(target = "toAddress", source = "toAddress")
     Delivery mapToEntity(DeliveryDto deliveryDto);
 
-    @Mapping(target = "flat", expression = "java(dto.getFlat() != null ? dto.getFlat() : \"\")")
+    @Mapping(target = "flat", expression = "java(addressDto.getFlat() != null ? addressDto.getFlat() : \"\")")
     Address mapAddressToEntity(AddressDto addressDto);
 }

@@ -9,9 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableFeignClients(basePackages = "ru.yandex.practicum.interaction.api.client")
 @EnableDiscoveryClient
-@ConfigurationPropertiesScan({"ru.yandex.practicum.interaction.api", "ru.yandex.practicum.delivery"})
-public class DeliveryApp {
+@ConfigurationPropertiesScan({"ru.yandex.practicum.interaction.api", "ru.yandex.practicum.order"})
+public class OrderApp {
     public static void main(String[] args) {
-        SpringApplication.run(DeliveryApp.class, args);
+        SpringApplication.run(OrderApp.class, args);
     }
 }
