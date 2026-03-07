@@ -27,7 +27,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public DeliveryDto delivery(DeliveryDto deliveryDto) {
+    public DeliveryDto createNewDelivery(DeliveryDto deliveryDto) {
         log.info("Создание доставки: {}", deliveryDto);
 
         Delivery delivery = deliveryMapper.mapToEntity(deliveryDto);
@@ -41,7 +41,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public void successful(UUID deliveryId) {
+    public void successfulDelivery(UUID deliveryId) {
         log.info("Успешная доставка: {}", deliveryId);
 
         Delivery delivery = getDeliveryById(deliveryId);
@@ -53,7 +53,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public void picked(UUID deliveryId) {
+    public void pickedInDelivery(UUID deliveryId) {
         log.info("Передача товара в доставку: {}", deliveryId);
 
         Delivery delivery = getDeliveryById(deliveryId);
@@ -68,7 +68,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public void failed(UUID deliveryId) {
+    public void failedDelivery(UUID deliveryId) {
         log.info("Доставка не удалась: {}", deliveryId);
 
         Delivery delivery = getDeliveryById(deliveryId);
@@ -82,7 +82,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional
-    public BigDecimal cost(OrderDto orderDto) {
+    public BigDecimal costDelivery(OrderDto orderDto) {
         log.info("Расчёт стоимости доставки для заказа: {}", orderDto.getOrderId());
 
         Delivery delivery = getDeliveryById(orderDto.getDeliveryId());

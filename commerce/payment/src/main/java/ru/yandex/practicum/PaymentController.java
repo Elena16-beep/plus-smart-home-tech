@@ -33,8 +33,7 @@ public class PaymentController implements PaymentFeignClient {
 
     @Override
     public void refund(UUID paymentId) {
-        log.info("Метод для эмуляции успешной оплаты: {}", paymentId);
-
+        log.info("Успешная оплата: {}", paymentId);
         paymentService.refund(paymentId);
     }
 
@@ -47,7 +46,7 @@ public class PaymentController implements PaymentFeignClient {
 
     @Override
     public void failed(UUID paymentId) {
-        log.info("Метод для эмуляции отказа при оплате: {}", paymentId);
+        log.info("Отказ при оплате: {}", paymentId);
         paymentService.failed(paymentId);
     }
 }

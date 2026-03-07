@@ -32,8 +32,7 @@ public class PaymentServiceImpl implements PaymentService {
         checkOrder(order);
 
         OrderDto calculatedOrder = totalCost(order);
-        BigDecimal vat = calculatedOrder.getProductPrice()
-                .multiply(PaymentConstants.VAT_RATE);
+        BigDecimal vat = calculatedOrder.getProductPrice().multiply(PaymentConstants.VAT_RATE);
         Payment payment = Payment.builder()
                 .productsTotal(calculatedOrder.getProductPrice())
                 .deliveryTotal(calculatedOrder.getDeliveryPrice())
@@ -62,18 +61,6 @@ public class PaymentServiceImpl implements PaymentService {
         orderDto.setTotalPrice(total);
 
         return orderDto;
-//
-//        @Override
-//        public Double calculateTotalCostPayment(OrderDto orderDto) {
-//            Float productPrice = orderDto.getProductPrice();
-//
-//            if (productPrice == null || orderDto.getDeliveryPrice() == null) {
-//                throw new NotEnoughInfoInOrderToCalculateException(
-//                        String.format("Стоимость заказа с ID = %s невозможно рассчитать. Одно из значений %f или %f = 0",
-//                                orderDto.getOrderId(), productPrice, orderDto.getDeliveryPrice()));
-//            }
-//
-//            return productPrice + productPrice * feeTax + orderDto.getDeliveryPrice();
     }
 
     @Override
@@ -96,34 +83,17 @@ public class PaymentServiceImpl implements PaymentService {
             try {
                 product = shoppingStoreFeignClient.getProduct(productId);
             } catch (FeignException.NotFound e) {
-                throw new NotEnoughInfoInOrderToCalculateException(
-                        "Товар с id %s не найден".formatted(productId)
-                );
+                throw new NotEnoughInfoInOrderToCalculateException("Товар с id %s не найден".formatted(productId));
             }
 
             if (product.getPrice() == null) {
-                throw new NotEnoughInfoInOrderToCalculateException(
-                        "У товара %s не указана цена".formatted(productId)
-                );
+                throw new NotEnoughInfoInOrderToCalculateException("У товара %s не указана цена".formatted(productId));
             }
 
-            totalCost = totalCost.add(
-                    product.getPrice().multiply(BigDecimal.valueOf(quantity))
-            );
+            totalCost = totalCost.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         }
 
         return totalCost;
-
-//        Map<UUID, Long> products = order.getProducts();
-//
-//        Map<UUID, Float> price = products.keySet().stream()
-//                .map(shoppingStoreFeignClient::getProduct)
-//                .collect(Collectors.toMap(ProductDto::getProductId, ProductDto::getPrice));
-//
-//        return products.entrySet().stream()
-//                .map(entry -> entry.getValue() * price.get(entry.getKey()))
-//                .mapToDouble(Float::floatValue)
-//                .sum();
     }
 
     @Override
@@ -147,7 +117,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new NoOrderFoundException("Платёж не найден"));
 
         payment.setPaymentState(PaymentState.FAILED);
-        orderFeignClient.paymentFailed(payment.getOrderId());
+        OrderDto orderDto = orderFeignClient.paymentFailed(payment.getOrderId());
+        log.info("Отказ при оплате, заказ: {}", orderDto);
     }
 
     private BigDecimal calculateDeliveryPrice(OrderDto orderDto) {

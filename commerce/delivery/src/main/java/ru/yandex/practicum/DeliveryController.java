@@ -18,34 +18,34 @@ public class DeliveryController implements DeliveryFeignClient {
     private final DeliveryService deliveryService;
 
     @Override
-    public DeliveryDto delivery(DeliveryDto delivery) {
+    public DeliveryDto createNewDelivery(DeliveryDto delivery) {
         log.info("Создание новой доставки: {}", delivery);
 
-        return deliveryService.delivery(delivery);
+        return deliveryService.createNewDelivery(delivery);
     }
 
     @Override
-    public void successful(UUID deliveryId) {
-        log.info("Эмуляция доставки с id: {}", deliveryId);
-        deliveryService.successful(deliveryId);
+    public void successfulDelivery(UUID deliveryId) {
+        log.info("Успешная доставка с id: {}", deliveryId);
+        deliveryService.successfulDelivery(deliveryId);
     }
 
     @Override
-    public void picked(UUID deliveryId) {
-        log.info("Эмуляция передачи товара в доставку с id: {}", deliveryId);
-        deliveryService.picked(deliveryId);
+    public void pickedInDelivery(UUID deliveryId) {
+        log.info("Передача товара в доставку с id: {}", deliveryId);
+        deliveryService.pickedInDelivery(deliveryId);
     }
 
     @Override
-    public void failed(UUID deliveryId) {
-        log.info("Эмуляция неудачной передачи товара  в доставку с id: {}", deliveryId);
-        deliveryService.failed(deliveryId);
+    public void failedDelivery(UUID deliveryId) {
+        log.info("Неудачная передача товара в доставку с id: {}", deliveryId);
+        deliveryService.failedDelivery(deliveryId);
     }
 
     @Override
-    public BigDecimal cost(OrderDto order) {
+    public BigDecimal costDelivery(OrderDto order) {
         log.info("Расчёт полной стоимости доставки заказа: {}", order);
 
-        return deliveryService.cost(order);
+        return deliveryService.costDelivery(order);
     }
 }

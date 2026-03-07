@@ -7,7 +7,6 @@ import lombok.*;
 import ru.yandex.practicum.interaction.api.enums.ProductCategory;
 import ru.yandex.practicum.interaction.api.enums.ProductState;
 import ru.yandex.practicum.interaction.api.enums.QuantityState;
-
 import java.math.BigDecimal;
 import java.util.UUID;
 

@@ -122,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = getOrderById(orderId);
 
         BigDecimal deliveryPrice =
-                deliveryFeignClient.cost(orderMapper.mapToDto(order));
+                deliveryFeignClient.costDelivery(orderMapper.mapToDto(order));
 
         order.setDeliveryPrice(deliveryPrice);
         orderRepository.save(order);
@@ -168,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
                 .deliveryState(DeliveryState.CREATED)
                 .build();
 
-        return deliveryFeignClient.delivery(delivery);
+        return deliveryFeignClient.createNewDelivery(delivery);
     }
 
     private OrderDto changeState(UUID orderId, OrderState state) {

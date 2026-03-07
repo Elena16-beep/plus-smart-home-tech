@@ -6,13 +6,13 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface DeliveryService {
-    DeliveryDto delivery(DeliveryDto delivery);
+    DeliveryDto createNewDelivery(DeliveryDto delivery);
 
-    void successful(UUID deliveryId);
+    void successfulDelivery(UUID deliveryId);
 
-    void picked(UUID deliveryId);
+    void pickedInDelivery(UUID deliveryId);
 
-    void failed(UUID deliveryId);
+    void failedDelivery(UUID deliveryId);
 
-    BigDecimal cost(OrderDto order);
+    BigDecimal costDelivery(OrderDto order);
 }
