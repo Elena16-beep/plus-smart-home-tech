@@ -9,11 +9,12 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AddProductToWarehouseRequest {
     @NotNull
     private UUID productId;
 
     @Min(1)
     @NotNull
-    private Integer quantity;
+    private Long quantity;
 }

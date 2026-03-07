@@ -9,15 +9,15 @@ spring:
           uri: lb://shopping-cart
           predicates:
             - Path=/shopping-cart/**
-          filters:
-            - PrefixPath=/api/v1
+#          filters:
+#            - PrefixPath=/api/v1
 
         - id: shopping_store_service_route
           uri: lb://shopping-store
           predicates:
             - Path=/shopping-store/**
           filters:
-            - PrefixPath=/api/v1
+#            - PrefixPath=/api/v1
             - name: Retry
               args:
                 retries: 3
@@ -32,15 +32,15 @@ spring:
           uri: lb://warehouse
           predicates:
             - Path=/warehouse/**
-          filters:
-            - PrefixPath=/api/v1
+#          filters:
+#            - PrefixPath=/api/v1
 
         - id: order_service_route
           uri: lb://order
           predicates:
             - Path=/order/**
           filters:
-            - PrefixPath=/api/v1
+#            - PrefixPath=/api/v1
             - name: Retry
               args:
                 retries: 3
@@ -56,7 +56,7 @@ spring:
           predicates:
             - Path=/delivery/**
           filters:
-            - PrefixPath=/api/v1
+#            - PrefixPath=/api/v1
             - name: Retry
               args:
                 retries: 3
@@ -71,8 +71,8 @@ spring:
           uri: lb://payment
           predicates:
             - Path=/payment/**
-          filters:
-            - PrefixPath=/api/v1
+#          filters:
+#            - PrefixPath=/api/v1
 
 management:
   endpoints:

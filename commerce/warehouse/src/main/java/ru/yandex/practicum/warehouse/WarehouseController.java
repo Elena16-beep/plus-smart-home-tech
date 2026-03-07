@@ -9,7 +9,12 @@ import ru.yandex.practicum.interaction.api.dto.AddressDto;
 import ru.yandex.practicum.interaction.api.dto.BookedProductsDto;
 import ru.yandex.practicum.interaction.api.dto.ShoppingCartDto;
 import ru.yandex.practicum.interaction.api.request.AddProductToWarehouseRequest;
+import ru.yandex.practicum.interaction.api.request.AssemblyProductsForOrderRequest;
 import ru.yandex.practicum.interaction.api.request.NewProductInWarehouseRequest;
+import ru.yandex.practicum.interaction.api.request.ShippedToDeliveryRequest;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -42,5 +47,24 @@ public class WarehouseController implements WarehouseFeignClient {
         log.info("Получение адреса склада");
 
         return warehouseService.getWarehouseAddress();
+    }
+
+    @Override
+    public void shippedToDelivery(ShippedToDeliveryRequest request) {
+        log.info("Передача товаров в доставку: {}", request);
+        warehouseService.shippedToDelivery(request);
+    }
+
+    @Override
+    public void acceptReturn(Map<UUID, Long> products) {
+        log.info("Возврат товаров на склад: {}", products);
+        warehouseService.acceptReturn(products);
+    }
+
+    @Override
+    public BookedProductsDto assemblyProductsForOrder(AssemblyProductsForOrderRequest request) {
+        log.info("Сбор товаров к заказу: {}", request);
+
+        return warehouseService.assemblyProductsForOrder(request);
     }
 }

@@ -16,5 +16,4 @@ public class AssemblyProductsForOrderRequest {
 
     @NotNull
     private UUID orderId;
-
 }
