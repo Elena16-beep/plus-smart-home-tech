@@ -98,7 +98,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public void refund(UUID paymentId) {
+    public void paymentSuccess(UUID paymentId) {
         log.info("Подтверждение успешной оплаты: {}", paymentId);
 
         Payment payment = paymentRepository.findPaymentByPaymentId(paymentId)

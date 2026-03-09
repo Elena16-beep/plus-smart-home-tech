@@ -11,6 +11,7 @@ import ru.yandex.practicum.interaction.api.dto.*;
 import ru.yandex.practicum.interaction.api.enums.DeliveryState;
 import ru.yandex.practicum.interaction.api.enums.OrderState;
 import ru.yandex.practicum.interaction.api.exception.NoOrderFoundException;
+import ru.yandex.practicum.interaction.api.exception.NotAuthorizedUserException;
 import ru.yandex.practicum.interaction.api.request.*;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -29,9 +30,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Page<OrderDto> getOrdersByUser(String username, Pageable pageable) {
-        ShoppingCartDto cart = shoppingCartFeignClient.getShoppingCart(username);
+        if (username.isBlank()) {
+            throw new NotAuthorizedUserException(username);
+        }
 
-        return orderRepository.getAllOrdersByCartId(cart.getShoppingCartId(), pageable).map(orderMapper::mapToDto);
+        Page<Order> orders = orderRepository.findAllByUsername(username, pageable);
+
+        return orders.map(orderMapper::mapToDto);
     }
 
     @Override

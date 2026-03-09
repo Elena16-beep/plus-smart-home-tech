@@ -10,7 +10,7 @@ public interface PaymentService {
 
     OrderDto totalCost(OrderDto order);
 
-    void refund(UUID paymentId);
+    void paymentSuccess(UUID paymentId);
 
     BigDecimal productCost(OrderDto order);
 

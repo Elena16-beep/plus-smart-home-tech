@@ -18,7 +18,7 @@ public interface PaymentFeignClient {
     OrderDto totalCost(@RequestBody @Valid OrderDto order);
 
     @PostMapping("/refund")
-    void refund(@RequestBody UUID paymentId);
+    void paymentSuccess(@RequestBody UUID paymentId);
 
     @PostMapping("/productCost")
     BigDecimal productCost(@RequestBody @Valid OrderDto order);

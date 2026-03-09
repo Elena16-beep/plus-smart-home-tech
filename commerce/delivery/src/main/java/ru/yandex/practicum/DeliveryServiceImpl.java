@@ -58,6 +58,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         Delivery delivery = getDeliveryById(deliveryId);
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
+        orderFeignClient.assembly(delivery.getOrderId());
 
         warehouseFeignClient.shippedToDelivery(
                 new ShippedToDeliveryRequest(delivery.getOrderId(), deliveryId)

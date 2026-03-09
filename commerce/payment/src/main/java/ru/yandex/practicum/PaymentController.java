@@ -32,9 +32,9 @@ public class PaymentController implements PaymentFeignClient {
     }
 
     @Override
-    public void refund(UUID paymentId) {
+    public void paymentSuccess(UUID paymentId) {
         log.info("Успешная оплата: {}", paymentId);
-        paymentService.refund(paymentId);
+        paymentService.paymentSuccess(paymentId);
     }
 
     @Override
