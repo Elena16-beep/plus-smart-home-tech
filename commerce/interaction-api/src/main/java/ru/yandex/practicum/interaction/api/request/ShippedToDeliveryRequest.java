@@ -1,6 +1,5 @@
 package ru.yandex.practicum.interaction.api.request;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.util.UUID;
@@ -9,12 +8,10 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class AddProductToWarehouseRequest {
+public class ShippedToDeliveryRequest {
     @NotNull
-    private UUID productId;
+    private UUID orderId;
 
-    @Min(1)
     @NotNull
-    private Long quantity;
+    private UUID deliveryId;
 }

@@ -31,6 +31,20 @@ public class GlobalExceptionHandler {
         return ApiError.fromException(e, HttpStatus.NOT_FOUND);
     }
 
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoDeliveryFoundException.class)
+    public ApiError handleDeliveryNotFound(NoDeliveryFoundException e) {
+        log.warn("Delivery not found: {}", e.getMessage());
+        return ApiError.fromException(e, HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoOrderFoundException.class)
+    public ApiError handleOrderNotFound(NoOrderFoundException e) {
+        log.warn("Order not found: {}", e.getMessage());
+        return ApiError.fromException(e, HttpStatus.NOT_FOUND);
+    }
+
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(SpecifiedProductAlreadyInWarehouseException.class)
     public ApiError handleProductAlreadyInWarehouse(SpecifiedProductAlreadyInWarehouseException e) {
@@ -42,6 +56,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ProductInShoppingCartLowQuantityInWarehouse.class)
     public ApiError handleInsufficientQuantity(ProductInShoppingCartLowQuantityInWarehouse e) {
         log.warn("Insufficient product quantity in warehouse: {}", e.getMessage());
+        return ApiError.fromException(e, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NotEnoughInfoInOrderToCalculateException.class)
+    public ApiError handleEnoughInfoInOrderToCalculate(NotEnoughInfoInOrderToCalculateException e) {
+        log.warn("Not enough info to calculate in order: {}", e.getMessage());
         return ApiError.fromException(e, HttpStatus.BAD_REQUEST);
     }
 
